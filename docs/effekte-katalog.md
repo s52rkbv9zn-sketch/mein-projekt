@@ -106,3 +106,31 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Zuschnitt:** Videobereich der iPhone-Aufnahme `crop=2096:1180:230:0` (nach Drehung). Danach je Szene ein quadratischer Ausschnitt ohne Untertitel, Logos und Leisten (`scenes.py`). Jede Szene über ihre ganze Länge prüfen.
 * **Ausgabe:** 1080×1080, 30 fps, x264 slow CRF 15, tune film, BT.709, AAC 256k. Der Ton ist die Tonspur der Referenz.
 * **Vorverarbeitung:** Rauschfilter `hqdn3d=2.2:1.8:3:3` vor dem Hochskalieren, Skalierung mit Lanczos.
+
+
+---
+
+# Referenz 4: Konzert-Edit (@mitanori), umgesetzt in `projects/felix-konzert`
+
+576×576, 30 fps, 17,4 s. Bildnummern = t × 30. Edit bis Bild 469, danach schwarz (Musik läuft bis 17,4 s).
+
+* **Aufbau:** 10 Szenen (Schnitte 0, 22, 60, 75, 97, 119, 141, 177, 190, 214). Ab Bild 235 kommen **dieselben Clips mit denselben Momenten** noch einmal (alle Schnitte +235).
+* **Übergang „Unschärfe-Blende“**, an jedem Schnitt einzeln gemessen (Tabelle `TR` im Renderer):
+  * raus: 3 Bilder (σ 1 → 2–4 → 4–9 bei 576 px), dazu leicht dunkler (×0,9 → ×0,6)
+  * rein: 5–6 Bilder (σ 8–24 → 5–12 → 3–6 → 2–3 → 1–2), dazu wieder heller werdend
+* **Messmethode:** Unschärfe über die bandbegrenzte Schärfe schätzen (Bild auf 144 px verkleinern, Energie Bild minus Blur σ 1,5), **ohne Ausrichtung**. Vergleich mit einem 6 Bilder entfernten Bild überschätzt σ wegen Zoom und Bewegung. Volle Laplace-Schärfe unterschätzt σ wegen Kompressions-Blöcken. Sehr starke Unschärfe (σ > 15) nach Augenmaß ergänzen.
+* **Dunkle Takt-Blitze:** einzelne Bilder ×0,31 mit leichter Unschärfe (σ 3) auf jeder Achtelnote, in Szene B (31, 39, 47, 54) und G (147, 154, 162, 169), jeweils +235.
+* **Schiebe-Übergang** (Bild 140): Die linke Hälfte zeigt das neue Bild (dunkel, waagerecht verwischt), die rechte Hälfte das alte Bild (unscharf). Danach 141–142 waagerechte Wischunschärfe (0,10 und 0,03 × Breite).
+* **Kamera:** weiche Zoom-Kurven je Szene aus der Referenz (`ref_camera.json`), Richtung wechselt pro Szene.
+* **Look** `rose_look.py`: tiefe Schwarztöne, rosa Lichter (a +8..+12), kühl-magenta Schatten, leicht weich.
+
+# Referenz 3: „home.“-Edit (@dohwxn), vorbereitet in `projects/home-edit`
+
+768×576 (4:3), 30 fps, Edit bis Bild 779.
+
+* **Schnitte:** 13 harte Schnitte ohne Übergangseffekte bei 0, 52, 103, 155, 227, 286, 322, 352, 407, 462, 521, 556, 597, 670.
+* **Ruckel-Look:** neues Bild nur auf dem globalen Raster floor(k × 3,54 + 1,75), also 8,47 Bilder/s. Schnitte liegen außerhalb des Rasters.
+* **Lichtblitz** 546–549: Doppelbelichtung mit einem hellen, bläulichen Geist, 12 % nach oben versetzt.
+* **Ende** ab 670: der letzte Clip als quadratisches Foto (70 % der Bildhöhe) mittig auf dunklem Grund mit weichem Schatten. Ab 780 schwarz.
+* **Schriftzug** „home.“: hellila (232, 206, 238), mittig, Playfair Display Italic mit zusätzlicher Neigung. **Nur auf ausdrücklichen Wunsch einsetzen** (Regel 1).
+* **Look** `home_look.py`: warm, weich, leicht verblasst.
