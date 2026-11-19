@@ -70,6 +70,11 @@ PATCHES = {
 # Gesicht in der Referenz-Szene: (x, y) als Anteil, Gesichtshoehe als Anteil  (gemessen mit YuNet)
 REF_FACE = [(.50, .33, .385), (.50, .38, .292), (.50, .34, .299), (.50, .30, .266), (.50, .27, .288),
             (.50, .34, .334), (.50, .27, .253), (.50, .32, .304), (.50, .30, .341), (.50, .29, .251)]
+# Feinanpassung je Szene: frac = Gesichtshoehe als Anteil (naeher ran), yf = Gesicht senkrecht (mehr Platz oben)
+SCENE_FRAME = {
+    "selfie": dict(yf=0.42),
+    "red_shy": dict(frac=0.26),
+}
 FRAME_WIDER = 0.78           # etwas weiter als Referenz -> weniger Hochskalieren, bessere Qualitaet
 MIN_SIDE = 600
 
@@ -216,11 +221,12 @@ def load(i):
     fx, fy, fh = smooth_track(times, raw, sigma_s=0.12)
     found = int((~np.isnan(raw[:, 0])).sum())
     j = i % 10
-    side = float(np.nanmedian(raw[:, 2]) / (REF_FACE[j][2] * FRAME_WIDER))
+    sf = SCENE_FRAME.get(p["scene"], {})
+    side = float(np.nanmedian(raw[:, 2]) / sf.get("frac", REF_FACE[j][2] * FRAME_WIDER))
     x0, y0, x1, y1 = SAFE_SCENE.get(p["scene"], SAFE[clip])
     side = float(np.clip(side, MIN_SIDE, min(x1 - x0, y1 - y0)))
     # Ausschnitt so klein halten, dass Felix im sicheren Bereich IMMER mittig sitzen kann
-    yf = REF_FACE[j][1]
+    yf = sf.get("yf", REF_FACE[j][1])
     lim = min(np.percentile(2 * np.minimum(fx - x0, x1 - fx), 5),
               np.percentile((fy - y0) / yf, 5),
               np.percentile((y1 - fy) / (1 - yf), 5))
@@ -244,7 +250,7 @@ def crop_geometry(i, f, side):
     x0, y0, x1, y1 = d["safe"]
     side = min(side, x1 - x0, y1 - y0)
     cx = float(d["fx"][k])
-    cy = float(d["fy"][k]) + (0.5 - REF_FACE[j][1]) * side
+    cy = float(d["fy"][k]) + (0.5 - SCENE_FRAME.get(SHOTS[i]["scene"], {}).get("yf", REF_FACE[j][1])) * side
     cx = float(np.clip(cx, x0 + side / 2, x1 - side / 2))
     cy = float(np.clip(cy, y0 + side / 2, y1 - side / 2))
     return k, cx, cy, side
