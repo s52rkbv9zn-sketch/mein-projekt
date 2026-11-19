@@ -134,3 +134,13 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Ende** ab 670: der letzte Clip als quadratisches Foto (70 % der Bildhöhe) mittig auf dunklem Grund mit weichem Schatten. Ab 780 schwarz.
 * **Schriftzug** „home.“: hellila (232, 206, 238), mittig, Playfair Display Italic mit zusätzlicher Neigung. **Nur auf ausdrücklichen Wunsch einsetzen** (Regel 1).
 * **Look** `home_look.py`: warm, weich, leicht verblasst.
+
+
+## Referenz 4, Version 2 (Feedback des Nutzers: „Zeitlupe, Felix mittig, Übergänge zu hart“)
+
+* **Zeitlupe:** Felix-Szenen aus 60-fps-Quellen mit halber Geschwindigkeit, silver (41 fps) mit 0,7. Bildänderung innerhalb der Szenen: v1 8,9, v2 5,4, Vorbild 3,9.
+* **Mittig:** YuNet-Gesichtserkennung (100 % Treffer), Spur geglättet (Gauß 0,12 s). Ausschnittgröße = Gesichtshöhe ÷ (Vorbild-Anteil × 0,78), so begrenzt, dass das Gesicht im sicheren Bereich immer exakt mittig sitzen kann.
+* **Unschärfe am Schnitt** (σ bei 576 px): rein 14–20 → 9–13 → 6–7 → 4 → 2,5 → 1,5; raus 1,5 → 3,5 → 6. Am Bild abgeglichen (Vorbild-Bild neben schärferem Nachbarbild, das unterschiedlich stark weichgezeichnet wurde). Automatische Schätzungen lagen daneben: Ausrichtung überschätzt, Bandenergie und Spektrum unterschätzen (Logo-Einblendungen bleiben scharf).
+* **Farbangleichung je Szene** an die Vorbild-Szene (Lab, Stärke L 0,45, a/b 0,6, Streuungsverhältnis begrenzt auf 0,75–1,35).
+* **Härte-Maß:** mittlere größte Bildänderung am Schnitt (64×64-Bilder): Vorbild 54,7, v1 67,0, v2 53,0.
+* **Schiebe-Übergang:** Die neue Hälfte stark abgedunkelt (×0,45) und gestreift, wie im Vorbild.

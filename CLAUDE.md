@@ -19,7 +19,10 @@ Wichtige Dateien:
 5. **Flüssigkeit kommt von der Kamerabewegung.** Jeder Clip zoomt durchgehend (2–5 % pro Bild), vor dem Schnitt schneller werdend. Keine Richtungs-Ruckler, keine gespiegelten Bildränder, kein hartes Stehenbleiben.
 6. **Qualität ist wichtig.** CC-Filter verwenden, Zoom maximal ~1,4×, doppelte Bilder der Bildschirmaufnahmen entfernen, Export in hoher Qualität (siehe Katalog, Abschnitt 7).
 7. **Keine Clips selbst von YouTube oder TikTok laden.** Der Nutzer liefert sie. Erlaubnis des Nutzers ändert daran nichts.
-8. Wenn der Nutzer auf eine Stelle zeigt (Screenshot oder Sekunde), genau diese Stelle ändern und den Rest so lassen. Bei Unklarheit (welche Szene?) Szenen in der Antwort benennen.
+8. **Zeitlupe wie im Vorbild.** Bewegt sich die Person im Vorbild langsam, Felix ebenfalls verlangsamen: bevorzugt 60-fps-Quellen in halber Geschwindigkeit (echte Einzelbilder, keine erfundenen Zwischenbilder). Bewegung messen (`vergleich.py`, Median-Bildänderung) und mit dem Vorbild vergleichen.
+9. **Die Person immer mittig.** Ausschnitt per Gesichtserkennung (`edit-toolkit/face_track.py`) führen: Gesicht waagerecht in der Mitte, Höhe und Größe wie im Vorbild. Ausschnitt nur im „sicheren Bereich“ ohne Einblendungen. Kleine Einblendungen am Rand notfalls wegrechnen (`cv2.inpaint`).
+10. **Weiche Übergänge.** Unschärfe am Schnitt eher stärker als gedacht (am Bild abgleichen, nicht nur schätzen). Farben jeder Szene an die passende Vorbild-Szene angleichen (Lab-Mittelwert/Streuung), damit die Farbsprünge am Schnitt klein bleiben. Maß: größte Bildänderung am Schnitt ≈ Vorbild.
+11. Wenn der Nutzer auf eine Stelle zeigt (Screenshot oder Sekunde), genau diese Stelle ändern und den Rest so lassen. Bei Unklarheit (welche Szene?) Szenen in der Antwort benennen.
 
 ## Ablauf, der sich bewährt hat
 
