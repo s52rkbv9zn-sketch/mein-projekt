@@ -332,7 +332,7 @@ def render(f):
     i = shot_of(f)
     if f in WP:
         old = cv2.GaussianBlur(graded(i, f), (0, 0), 10 * K)
-        new = cv2.blur(graded(i + 1, CUTS[i + 1]) * 0.7, (int(0.30 * W), 1))
+        new = cv2.blur(cv2.GaussianBlur(graded(i + 1, CUTS[i + 1]), (0, 0), 4 * K) * 0.45, (int(0.35 * W), 1))
         img = np.empty_like(old)
         img[:, :W // 2] = new[:, W // 2:]
         img[:, W // 2:] = old[:, :W - W // 2]
