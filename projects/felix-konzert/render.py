@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Felix-Konzert-Edit nach Referenz 4 (@mitanori, 576x576, 17,4 s).
+"""Felix-Konzert-Edit v2 nach Referenz 4 (@mitanori, 576x576, 17,4 s).
 
-Aufbau der Referenz (Bildnummern = t*30):
-  * 10 Szenen (0-234), danach dieselben 10 Szenen mit denselben Momenten noch einmal (235-469),
-    ab Bild 470 schwarz, Musik laeuft bis 17,4 s weiter
-  * Uebergang: Unschaerfe-Blende (raus 3-4 Bilder, rein 5-6 Bilder) + leichtes Abdunkeln (je Schnitt gemessen)
-  * jede Szene zoomt weich (Kamerakurve aus der Referenz, ref_camera.json)
-  * dunkle Takt-Blitze (1 Bild, x0.31) in Szene B und G auf jeder Achtelnote
-  * Bild 140 / 375: Schiebe-Uebergang (neues Bild schiebt sich von links rein, horizontale Wischunschaerfe)
-  * Look: rose_look (tiefe Schwarztoene, rosa Lichter, kuehle Schatten)
-Aufruf:  python3 render.py   |   python3 render.py frames 0 140 300
+Nutzer-Wuensche (v2):
+  * Felix immer in Zeitlupe wie in der Referenz -> 60-fps-Quellen mit halber Geschwindigkeit
+    (jedes echte Einzelbild wird gezeigt, keine erfundenen Zwischenbilder)
+  * Felix immer mittig -> Gesicht wird pro Bild erkannt (face_track.py) und weich verfolgt
+  * weichere Uebergaenge -> Unschaerfe am Bild abgeglichen (staerker als v1) + Farben jeder Szene
+    an die passende Referenz-Szene angeglichen (kleinere Farbspruenge am Schnitt)
+
+Aufbau wie Referenz: 10 Szenen (0-234), dieselben 10 Szenen noch einmal (235-469), danach schwarz.
+Aufruf:  python3 render.py   |   python3 render.py frames 0 140 300   |   python3 render.py shots
 """
 import json, math, os, re, subprocess, sys, time
 import numpy as np
@@ -21,24 +21,52 @@ FELIX = os.path.join(HERE, "..", "felix-sorinyx")
 sys.path.insert(0, TOOLKIT)
 sys.path.insert(0, FELIX)
 from scenes import SCENES, BASE
-from rose_look import rose_look
+from face_track import FaceTracker, track, smooth_track
 
 MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
 REF = os.environ.get("REF4", os.path.join(MEDIA, "reference_konzert.mov"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
-OUT = os.path.join(OUTDIR, "Felix_Konzert_Edit.mp4")
-W = 1080
-FPS = 30
-K = W / 576.0                      # Referenz war 576 px breit: Unschaerfe-Werte umrechnen
-NF = 523                           # 17,43 s
-END = 470                          # ab hier schwarz
+OUT = os.path.join(OUTDIR, "Felix_Konzert_Edit_v2.mp4")
+W, FPS = 1080, 30
+K = W / 576.0
+NF, END = 523, 470
 
 HALF = [0, 22, 60, 75, 97, 119, 141, 177, 190, 214]
 CUTS = HALF + [c + 235 for c in HALF]
-# Szene, Startzeit in der Quelle (s)
-PLAN = [("glove_mic", 0.30), ("glove_x", 3.80), ("pink_up", 12.30), ("micsmile", 0.30), ("tank", 13.70),
-        ("silver", 0.30), ("stg_red", 5.50), ("red_laugh", 8.00), ("glove_wide", 2.00), ("stg_thumb", 3.95)]
-SHOTS = PLAN + PLAN                # zweite Haelfte: dieselben Clips und Momente wie in der Referenz
+
+# Szene, Startzeit in der Quelle, Tempo (0.5 = halbe Geschwindigkeit bei 60-fps-Quelle)
+PLAN = [
+    dict(scene="glove_mic",  t=0.25,  speed=0.5),   # A  Nahaufnahme, singt
+    dict(scene="glove_x",    t=5.20,  speed=0.5),   # B  Handschuhe vor dem Gesicht (Takt-Blitze)
+    dict(scene="bear",       t=0.80,  speed=0.5),   # C  laechelt
+    dict(scene="micsmile",   t=1.80,  speed=0.5),   # D  am Mikro, laechelt
+    dict(scene="brick",      t=13.40, speed=0.5),   # E  heller Hintergrund, laechelt
+    dict(scene="pink_up",    t=13.10, speed=0.5),   # F  Nahaufnahme, Blick zur Seite
+    dict(scene="glove_wide", t=2.00,  speed=0.5),   # G  Bewegung (Takt-Blitze)
+    dict(scene="blue_up",    t=0.40,  speed=0.5),   # H  kurz, Blick in die Kamera
+    dict(scene="silver",     t=1.40,  speed=0.7),   # I  dunkel, ruhig (41-fps-Quelle -> 0.7)
+    dict(scene="glove_x",    t=4.10,  speed=0.5),   # J  Arme ausgebreitet
+]
+SHOTS = PLAN + PLAN
+# Bereiche ohne Untertitel / Logos / schwarze Raender (Koordinaten nach Videobereich + ggf. Drehung)
+SAFE = {
+    "clip8.mov": (0, 0, 2096, 995),
+    "clip5.mov": (0, 80, 1180, 1950),
+    "clip7.mov": (0, 0, 1180, 1350),
+    "clip12.mov": (0, 0, 1820, 1000),
+    "clip13.mov": (175, 0, 1550, 1180),
+    "clip2.mov": (220, 80, 1950, 1000),
+    "clip10.mov": (0, 0, 2096, 1180),
+}
+# eingeblendete Schrift, die im Bereich liegt und weggerechnet wird (x0, y0, x1, y1)
+PATCHES = {
+    "clip5.mov": [(64, 926, 162, 1170)],          # ">> She"-Einblendung am linken Rand (gemessen)
+}
+# Gesicht in der Referenz-Szene: (x, y) als Anteil, Gesichtshoehe als Anteil  (gemessen mit YuNet)
+REF_FACE = [(.50, .33, .385), (.50, .38, .292), (.50, .34, .299), (.50, .30, .266), (.50, .27, .288),
+            (.50, .34, .334), (.50, .27, .253), (.50, .32, .304), (.50, .30, .341), (.50, .29, .251)]
+FRAME_WIDER = 0.78           # etwas weiter als Referenz -> weniger Hochskalieren, bessere Qualitaet
+MIN_SIDE = 600
 
 
 def shot_of(f):
@@ -49,49 +77,46 @@ def shot_end(i):
     return CUTS[i + 1] if i + 1 < len(CUTS) else END
 
 
-# ------------------------------------------------------------------ Uebergaenge (sigma @576 px, Helligkeit)
-TR = {   # gemessen mit bandbegrenzter Schaerfe (ohne Ausrichtungsfehler); sehr starke Unschaerfe nach Augenmass
-    0:   {0: (24, .80), 1: (12, .90), 2: (6, 1), 3: (3, 1), 4: (2, 1), 5: (1, 1)},
-    22:  {-3: (1, .88), -2: (2.5, .73), -1: (4, .60),
-          0: (8, .55), 1: (5, .57), 2: (3, .67), 3: (2, .80), 4: (1, .90), 5: (.5, .96)},
-    60:  {-3: (2, .94), -2: (3, .91), -1: (4, .86), 0: (14, .95), 1: (9, 1), 2: (4, 1), 3: (3, 1), 4: (2, 1)},
-    75:  {-3: (3, .96), -2: (4, .88), -1: (9, .84),
-          0: (10, .58), 1: (7, .62), 2: (4, .73), 3: (3, .86), 4: (2, .96), 5: (1, 1)},
-    97:  {-3: (1, .89), -2: (3, .78), -1: (5, .68),
-          0: (10, .72), 1: (6, .74), 2: (4, .82), 3: (2, .92), 4: (2, 1), 5: (1, 1)},
-    119: {-2: (3, 1), -1: (5, 1), 0: (11, .92), 1: (8, .94), 2: (4, .98), 3: (3, .97), 4: (2, .97)},
-    141: {-3: (2, 1), -2: (4, 1), 0: (5, .72), 1: (4, .77), 2: (3, .80), 3: (2, .90)},
-    177: {-3: (1, 1), -2: (2, 1), -1: (3, 1), 0: (2, .92), 1: (4, .97), 2: (4, .98), 3: (1, .97)},
-    190: {-3: (0, .91), -2: (2, .82), -1: (4, .74),
-          0: (21, .80), 1: (12, .80), 2: (6, .88), 3: (3, .96), 4: (2, 1), 5: (1, 1)},
-    214: {-3: (1, .91), -2: (2, .84), -1: (5, .78),
-          0: (16, .85), 1: (9, .90), 2: (5, .95), 3: (3, 1), 4: (2, 1), 5: (2, 1)},
-    235: {-4: (0, .90), -3: (0, .88), -2: (0, .88), -1: (0, .90),
-          0: (24, .95), 1: (12, .90), 2: (6, 1), 3: (3, 1), 4: (2, 1), 5: (1, 1)},
+# ------------------------------------------------------------------ Uebergaenge (sigma bei 576 px, Helligkeit)
+TR = {
+    0:   {0: (20, .80), 1: (12, .90), 2: (7, 1), 3: (4, 1), 4: (2.5, 1), 5: (1.5, 1)},
+    22:  {-3: (1.5, .88), -2: (3.5, .73), -1: (6, .60),
+          0: (14, .55), 1: (9, .57), 2: (6, .67), 3: (4, .80), 4: (2.5, .90), 5: (1.5, .96)},
+    60:  {-3: (1.5, .94), -2: (3, .91), -1: (5, .86), 0: (14, .95), 1: (9, 1), 2: (5, 1), 3: (3, 1), 4: (2, 1)},
+    75:  {-3: (2, .96), -2: (4, .88), -1: (7, .84),
+          0: (14, .58), 1: (9, .62), 2: (6, .73), 3: (4, .86), 4: (2.5, .96), 5: (1.5, 1)},
+    97:  {-3: (1.5, .89), -2: (3.5, .78), -1: (6, .68),
+          0: (16, .72), 1: (10, .74), 2: (6, .82), 3: (4, .92), 4: (2.5, 1), 5: (1.5, 1)},
+    119: {-3: (1.5, 1), -2: (3, 1), -1: (5, 1), 0: (16, .92), 1: (9, .94), 2: (5, .98), 3: (3, .97), 4: (2, .97)},
+    141: {-3: (2, 1), -2: (4, 1), 0: (6, .72), 1: (4, .77), 2: (3, .80), 3: (2, .90)},
+    177: {-3: (2, 1), -2: (4, 1), -1: (8, 1), 0: (5, .92), 1: (4, .97), 2: (3, .98), 3: (1.5, .97)},
+    190: {-3: (1.5, .91), -2: (3, .82), -1: (6, .74),
+          0: (20, .80), 1: (13, .80), 2: (7, .88), 3: (4, .96), 4: (2.5, 1), 5: (1.5, 1)},
+    214: {-3: (1.5, .91), -2: (3, .84), -1: (6, .78),
+          0: (18, .85), 1: (11, .90), 2: (7, .95), 3: (4, 1), 4: (2.5, 1), 5: (1.5, 1)},
+    235: {-4: (1, .90), -3: (2, .88), -2: (4, .88), -1: (7, .90),
+          0: (20, .95), 1: (12, .90), 2: (7, 1), 3: (4, 1), 4: (2.5, 1), 5: (1.5, 1)},
 }
-HBLUR = {141: .10, 142: .03}           # horizontale Wischunschaerfe nach dem Schiebe-Uebergang
-WIPE = {140}                                     # Schiebe-Bild (links neu, rechts alt)
-FLASH = {31, 39, 47, 54, 147, 154, 162, 169}     # dunkle Takt-Blitze
-
 SPEC = {}
-for base in (0, 235):                            # zweite Haelfte: dieselben Uebergaenge 235 Bilder spaeter
+for base in (0, 235):
     for c, d in TR.items():
         if c in (0, 235):
             continue
         for o, v in d.items():
             SPEC[c + base + o] = v
-for c in (0, 235):                               # Anfang (Einblenden) und Start der zweiten Haelfte
+for c in (0, 235):
     for o, v in TR[c].items():
         SPEC[c + o] = v
-HB = {f + b: v for f, v in HBLUR.items() for b in (0, 235)}
-WP = {f + b for f in WIPE for b in (0, 235)}
-FL = {f + b for f in FLASH for b in (0, 235)}
+HB = {f + b: v for f, v in {141: .10, 142: .03}.items() for b in (0, 235)}
+WP = {140, 375}
+FL = {f + b for f in (31, 39, 47, 54, 147, 154, 162, 169) for b in (0, 235)}
 
-# ------------------------------------------------------------------ Kamerakurve aus der Referenz
+# ------------------------------------------------------------------ Kamerakurve (Zoom) aus der Referenz
 REFP = {int(k): v for k, v in json.load(open(os.path.join(HERE, "ref_camera.json"))).items()}
+ZMAX = 1.25
 
 
-def _fill(vals, cap=0.12):
+def _fill(vals, cap=0.10):
     n = len(vals)
     out = [0.0] * n
     idx = [k for k in range(1, n) if vals[k] is not None]
@@ -104,9 +129,8 @@ def _fill(vals, cap=0.12):
     for a, b in zip(idx, idx[1:]):
         for k in range(a + 1, b):
             out[k] = vals[a] + (vals[b] - vals[a]) * (k - a) / (b - a)
-    last = vals[idx[-1]]
     for k in range(idx[-1] + 1, n):
-        out[k] = float(np.clip(last * 1.6 ** (k - idx[-1]), -cap, cap))
+        out[k] = float(np.clip(vals[idx[-1]] * 1.6 ** (k - idx[-1]), -cap, cap))
     return out
 
 
@@ -120,9 +144,9 @@ for i, c in enumerate(CUTS):
             vals[k] = math.log(r[0])
     L = np.cumsum(_fill(vals))
     rng = L.max() - L.min()
-    if rng > math.log(1.40):
-        L = L * (math.log(1.40) / rng)
-    L = L - L.min() + math.log(1.02)
+    if rng > math.log(ZMAX):
+        L = L * (math.log(ZMAX) / rng)
+    L = L - L.min()
     for k in range(n):
         CURVE[c + k] = float(math.exp(L[k]))
 
@@ -132,86 +156,188 @@ def Z(f):
     return CURVE[min(max(f, CUTS[i]), shot_end(i) - 1)]
 
 
-# ------------------------------------------------------------------ Quellen
+# ------------------------------------------------------------------ Quellen, Gesichtsverfolgung, Farben
+TRACKER = None
 cache = {}
 
 
-def crop_size(pre):
-    m = re.findall(r"crop=(\d+):(\d+)", pre)
-    return int(m[-1][0]), int(m[-1][1])
-
-
-def load(i):
-    key = (SHOTS[i][0], SHOTS[i][1])
-    if key in cache:
-        return cache[key]
-    sc, src = SHOTS[i]
-    clip, a, b, pre, _ = SCENES[sc]
-    dur = (shot_end(i) - CUTS[i]) / FPS
-    s = max(a, src - 0.1)
-    e = min(b, src + dur + 0.3)
-    vf = f"{BASE},{pre},hqdn3d=1.6:1.2:2.5:2.5,scale=in_color_matrix=bt709:in_range=tv:flags=lanczos,format=rgb24,showinfo"
-    w, h = crop_size(pre)
+def _decode(clip, rot, s, e):
+    vf = f"{BASE}," + ("transpose=1," if rot else "") + \
+         "hqdn3d=1.6:1.2:2.5:2.5,scale=in_color_matrix=bt709:in_range=tv,format=rgb24,showinfo"
+    h, w = (2096, 1180) if rot else (1180, 2096)
     r = subprocess.run(["ffmpeg", "-v", "info", "-ss", f"{s:.3f}", "-t", f"{e - s:.3f}", "-i", os.path.join(MEDIA, clip),
                         "-vf", vf, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True)
     arr = np.frombuffer(r.stdout, np.uint8).reshape(-1, h, w, 3)
-    times = np.array([float(x) for x in re.findall(rb"pts_time:([0-9.]+)", r.stderr)][:len(arr)])
-    if len(times) < len(arr):
-        last = times[-1] if len(times) else 0.0
-        times = np.concatenate([times, last + np.arange(1, len(arr) - len(times) + 1) / 60])
+    times = np.array([float(x) for x in re.findall(rb"pts_time:([0-9.]+)", r.stderr)])
+    n = min(len(arr), len(times))
+    arr, times = arr[:n], times[:n]
     small = np.stack([cv2.resize(cv2.cvtColor(x, cv2.COLOR_RGB2GRAY), (96, 96), interpolation=cv2.INTER_AREA)
                       for x in arr]).astype(np.float32)
     dif = np.abs(np.diff(small, axis=0)).mean(axis=(1, 2))
     keep = [0] + [k + 1 for k, dv in enumerate(dif) if dv > 0.18]
-    cache[key] = dict(frames=arr[keep], times=times[keep], off=src - s, size=w)
+    arr = arr[keep]
+    if clip in PATCHES:
+        arr = arr.copy()
+        for (px0, py0, px1, py1) in PATCHES[clip]:
+            mx0, my0, mx1, my1 = max(0, px0 - 60), max(0, py0 - 60), min(w, px1 + 60), min(h, py1 + 60)
+            mask = np.zeros((my1 - my0, mx1 - mx0), np.uint8)
+            mask[py0 - my0:py1 - my0, px0 - mx0:px1 - mx0] = 255
+            for a in arr:
+                a[my0:my1, mx0:mx1] = cv2.inpaint(np.ascontiguousarray(a[my0:my1, mx0:mx1]), mask, 9, cv2.INPAINT_TELEA)
+    return arr, times[keep] + s
+
+
+def load(i):
+    global TRACKER
+    p = SHOTS[i]
+    key = (p["scene"], p["t"])
+    if key in cache:
+        return cache[key]
+    clip, a, b, pre, _ = SCENES[p["scene"]]
+    rot = "transpose=1" in pre
+    n = shot_end(i) - CUTS[i]
+    need = n / FPS * p["speed"]
+    s = max(a, p["t"] - 0.12)
+    e = min(b, p["t"] + need + 0.15)
+    frames, times = _decode(clip, rot, s, e)
+    m = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", pre)[-1]
+    cw, ch, cx0, cy0 = map(int, m)
+    TRACKER = TRACKER or FaceTracker()
+    raw = track(list(frames), hint=(cx0 + cw / 2, cy0 + ch / 2), tracker=TRACKER)
+    fx, fy, fh = smooth_track(times, raw, sigma_s=0.12)
+    found = int((~np.isnan(raw[:, 0])).sum())
+    j = i % 10
+    side = float(np.nanmedian(raw[:, 2]) / (REF_FACE[j][2] * FRAME_WIDER))
+    x0, y0, x1, y1 = SAFE[clip]
+    side = float(np.clip(side, MIN_SIDE, min(x1 - x0, y1 - y0)))
+    # Ausschnitt so klein halten, dass Felix im sicheren Bereich IMMER mittig sitzen kann
+    yf = REF_FACE[j][1]
+    lim = min(np.percentile(2 * np.minimum(fx - x0, x1 - fx), 5),
+              np.percentile((fy - y0) / yf, 5),
+              np.percentile((y1 - fy) / (1 - yf), 5))
+    side = float(max(0.75 * MIN_SIDE, min(side, lim)))
+    cache[key] = dict(frames=frames, times=times, fx=fx, fy=fy, side=side, safe=(x0, y0, x1, y1),
+                      found=found, total=len(frames), lab=None)
     return cache[key]
 
 
-def src_img(i, f):
+def src_index(i, f):
     d = load(i)
-    target = d["off"] + (f - CUTS[i]) / FPS
-    k = int(np.argmin(np.abs(d["times"] - target)))
-    return d["frames"][k]
+    ts = SHOTS[i]["t"] + (f - CUTS[i]) / FPS * SHOTS[i]["speed"]
+    return int(np.argmin(np.abs(d["times"] - ts)))
 
 
-def warp(img, size, scale, dx=0.0, interp=cv2.INTER_LANCZOS4):
-    sc = W / size * scale
-    cs, co = (size - 1) / 2.0, (W - 1) / 2.0
-    M = np.array([[sc, 0, co + dx - sc * cs], [0, sc, co - sc * cs]], np.float32)
+def crop_geometry(i, f, side):
+    """Ausschnitt so, dass das Gesicht waagerecht in der Mitte und senkrecht wie in der Referenz sitzt"""
+    d = load(i)
+    k = src_index(i, f)
+    j = i % 10
+    x0, y0, x1, y1 = d["safe"]
+    side = min(side, x1 - x0, y1 - y0)
+    cx = float(d["fx"][k])
+    cy = float(d["fy"][k]) + (0.5 - REF_FACE[j][1]) * side
+    cx = float(np.clip(cx, x0 + side / 2, x1 - side / 2))
+    cy = float(np.clip(cy, y0 + side / 2, y1 - side / 2))
+    return k, cx, cy, side
+
+
+def warp_crop(img, cx, cy, side, interp=cv2.INTER_LANCZOS4):
+    sc = W / side
+    M = np.array([[sc, 0, (W - 1) / 2 - sc * cx], [0, sc, (W - 1) / 2 - sc * cy]], np.float32)
     return cv2.warpAffine(img, M, (W, W), flags=interp, borderMode=cv2.BORDER_REFLECT_101).astype(np.float32)
 
 
 def shot_frame(i, f):
-    """Bild der Szene i zum Zeitpunkt f mit Zoom und passender Bewegungsunschaerfe"""
     d = load(i)
-    img = src_img(i, f)
     z = Z(f)
+    k, cx, cy, side = crop_geometry(i, f, d["side"] / z)
+    img = d["frames"][k]
     c0, c1 = CUTS[i], shot_end(i)
     fa, fb = max(c0, f - 1), min(c1 - 1, f + 1)
-    v = math.log(Z(fb) / Z(fa)) / max(1, fb - fa) * 0.5            # 180-Grad-Verschluss
+    v = math.log(Z(fb) / Z(fa)) / max(1, fb - fa) * 0.5
     if abs(v) > 0.006:
         n = int(min(12, max(4, abs(v) * 160)))
         acc = np.zeros((W, W, 3), np.float32)
-        for j in range(n):
-            u = (j + 0.5) / n - 0.5
-            acc += warp(img, d["size"], max(1.0, z * math.exp(v * u)), interp=cv2.INTER_LINEAR)
+        for jj in range(n):
+            u = (jj + 0.5) / n - 0.5
+            acc += warp_crop(img, cx, cy, side / math.exp(v * u), interp=cv2.INTER_LINEAR)
         return acc / n
-    return warp(img, d["size"], z)
+    return warp_crop(img, cx, cy, side)
+
+
+# Farbangleichung an die Referenz-Szene (Lab: Mittelwert/Streuung)
+REF_ARR = None
+REF_STATS = {}
+STRENGTH = np.array([0.45, 0.6, 0.6], np.float32)
+
+
+def _lab(img):
+    return cv2.cvtColor(np.clip(img, 0, 255).astype(np.float32) / 255.0, cv2.COLOR_RGB2LAB)
+
+
+def ref_stats(j):
+    global REF_ARR
+    if j in REF_STATS:
+        return REF_STATS[j]
+    if REF_ARR is None:
+        r = subprocess.run(["ffmpeg", "-v", "error", "-i", REF, "-vf", "fps=30:start_time=0", "-frames:v", "240",
+                            "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True)
+        REF_ARR = np.frombuffer(r.stdout, np.uint8).reshape(-1, 576, 576, 3)
+    mask = np.ones((576, 576), bool)
+    mask[:90, :150] = False
+    mask[470:, 450:] = False
+    mask[500:, 200:380] = False
+    a, b = HALF[j] + 6, (HALF[j + 1] if j + 1 < 10 else 235) - 4
+    lab = np.concatenate([_lab(REF_ARR[f])[mask] for f in range(a, b, 2)])
+    REF_STATS[j] = (lab.mean(0), lab.std(0) + 1e-3)
+    return REF_STATS[j]
+
+
+def shot_stats(i):
+    d = load(i)
+    if d["lab"] is None:
+        fs = np.linspace(CUTS[i] + 4, shot_end(i) - 4, 6).astype(int)
+        lab = np.concatenate([_lab(cv2.resize(shot_frame(i, f), (256, 256), interpolation=cv2.INTER_AREA)).reshape(-1, 3)
+                              for f in fs])
+        d["lab"] = (lab.mean(0), lab.std(0) + 1e-3)
+    return d["lab"]
+
+
+def color_match(img, i):
+    ms, ss = shot_stats(i)
+    mt, st = ref_stats(i % 10)
+    ratio = np.clip(st / ss, 0.75, 1.35)
+    lab = _lab(img)
+    tgt = (lab - ms) * ratio + mt
+    lab = lab + (tgt - lab) * STRENGTH
+    rgb = cv2.cvtColor(lab.astype(np.float32), cv2.COLOR_LAB2RGB)
+    return np.clip(rgb, 0, 1) * 255.0
+
+
+def finish(img, soften=0.22, glow=0.08):
+    x = np.clip(img, 0, 255) / 255.0
+    x = x * (1 - soften) + cv2.GaussianBlur(x, (0, 0), 1.4) * soften
+    b = cv2.GaussianBlur(np.clip(x - 0.55, 0, None), (0, 0), 16)
+    x = 1 - (1 - x) * (1 - glow * 2.2 * b)
+    return np.clip(x, 0, 1) * 255.0
+
+
+def graded(i, f):
+    return color_match(shot_frame(i, f), i)
 
 
 def render(f):
     if f >= END:
         return np.zeros((W, W, 3), np.uint8)
     i = shot_of(f)
-    if f in WP:                                    # Schiebe-Bild: links neue Szene, rechts alte Szene
-        old = cv2.GaussianBlur(shot_frame(i, f), (0, 0), 10 * K)
-        new = shot_frame(i + 1, CUTS[i + 1]) * 0.7
-        new = cv2.blur(new, (int(0.30 * W), 1))
+    if f in WP:
+        old = cv2.GaussianBlur(graded(i, f), (0, 0), 10 * K)
+        new = cv2.blur(graded(i + 1, CUTS[i + 1]) * 0.7, (int(0.30 * W), 1))
         img = np.empty_like(old)
         img[:, :W // 2] = new[:, W // 2:]
         img[:, W // 2:] = old[:, :W - W // 2]
     else:
-        img = shot_frame(i, f)
+        img = graded(i, f)
         sig, gain = SPEC.get(f, (0, 1.0))
         if sig > 0:
             img = cv2.GaussianBlur(img, (0, 0), sig * K)
@@ -220,8 +346,14 @@ def render(f):
         img = img * gain
         if f in FL:
             img = cv2.GaussianBlur(img, (0, 0), 3 * K) * 0.31
-    img = rose_look(img)
-    return np.clip(img, 0, 255).astype(np.uint8)
+    return np.clip(finish(img), 0, 255).astype(np.uint8)
+
+
+def release_before(i):
+    keep = {(SHOTS[j]["scene"], SHOTS[j]["t"]) for j in range(i, min(i + 2, len(SHOTS)))}
+    for key in list(cache):
+        if key not in keep:
+            del cache[key]
 
 
 if __name__ == "__main__":
@@ -229,6 +361,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "frames":
         for f in map(int, sys.argv[2:]):
             cv2.imwrite(os.path.join(OUTDIR, f"preview_{f:03d}.png"), cv2.cvtColor(render(f), cv2.COLOR_RGB2BGR))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "shots":
+        for i in range(10):
+            d = load(i)
+            print(f"shot {i} {SHOTS[i]['scene']:10s} t={SHOTS[i]['t']:.2f} faces {d['found']}/{d['total']} side {d['side']:.0f}")
         sys.exit(0)
     enc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{W}", "-r", str(FPS), "-i", "-",
@@ -240,6 +377,8 @@ if __name__ == "__main__":
          "-t", f"{NF / FPS}", OUT], stdin=subprocess.PIPE)
     t0 = time.time()
     for f in range(NF):
+        if f < END:
+            release_before(shot_of(f))
         enc.stdin.write(render(f).tobytes())
         if f % 60 == 0:
             print(f"frame {f}/{NF} {time.time() - t0:.0f}s", flush=True)
