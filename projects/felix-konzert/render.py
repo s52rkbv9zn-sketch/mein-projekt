@@ -22,11 +22,12 @@ sys.path.insert(0, TOOLKIT)
 sys.path.insert(0, FELIX)
 from scenes import SCENES, BASE
 from face_track import FaceTracker, track, smooth_track
+from slowmo import double_rate
 
 MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
 REF = os.environ.get("REF4", os.path.join(MEDIA, "reference_konzert.mov"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
-OUT = os.path.join(OUTDIR, "Felix_Konzert_Edit_v2.mp4")
+OUT = os.path.join(OUTDIR, "Felix_Konzert_Edit_v3.mp4")
 W, FPS = 1080, 30
 K = W / 576.0
 NF, END = 523, 470
@@ -36,27 +37,31 @@ CUTS = HALF + [c + 235 for c in HALF]
 
 # Szene, Startzeit in der Quelle, Tempo (0.5 = halbe Geschwindigkeit bei 60-fps-Quelle)
 PLAN = [
-    dict(scene="glove_mic",  t=0.25,  speed=0.5),   # A  Nahaufnahme, singt
-    dict(scene="glove_x",    t=5.20,  speed=0.5),   # B  Handschuhe vor dem Gesicht (Takt-Blitze)
-    dict(scene="bear",       t=0.80,  speed=0.5),   # C  laechelt
-    dict(scene="micsmile",   t=1.80,  speed=0.5),   # D  am Mikro, laechelt
-    dict(scene="brick",      t=13.40, speed=0.5),   # E  heller Hintergrund, laechelt
-    dict(scene="pink_up",    t=13.10, speed=0.5),   # F  Nahaufnahme, Blick zur Seite
-    dict(scene="glove_wide", t=2.00,  speed=0.5),   # G  Bewegung (Takt-Blitze)
-    dict(scene="blue_up",    t=0.40,  speed=0.5),   # H  kurz, Blick in die Kamera
-    dict(scene="silver",     t=1.40,  speed=0.7),   # I  dunkel, ruhig (41-fps-Quelle -> 0.7)
-    dict(scene="glove_x",    t=4.10,  speed=0.5),   # J  Arme ausgebreitet
+    dict(scene="red_hair",  t=4.05,  speed=0.5),   # A  Buehne, Blick in die Kamera
+    dict(scene="red_laugh", t=7.75,  speed=0.5),   # B  lacht (Takt-Blitze)
+    dict(scene="bear",      t=0.80,  speed=0.5),   # C  laechelt
+    dict(scene="micsmile",  t=1.80,  speed=0.5),   # D  am Mikro, laechelt
+    dict(scene="brick",     t=13.40, speed=0.5),   # E  heller Hintergrund, laechelt
+    dict(scene="pink_up",   t=13.10, speed=0.5),   # F  Nahaufnahme, Blick zur Seite
+    dict(scene="stg_red",   t=6.10,  speed=0.5),   # G  Peace-Zeichen auf der Buehne (Takt-Blitze)
+    dict(scene="selfie",    t=3.40,  speed=0.5),   # H  kurz, Nahaufnahme, Blick in die Kamera
+    dict(scene="floor",     t=11.30, speed=0.5),   # I  singt auf der Buehne
+    dict(scene="red_shy",   t=6.30,  speed=0.5),   # J  schuechternes Laecheln
 ]
 SHOTS = PLAN + PLAN
 # Bereiche ohne Untertitel / Logos / schwarze Raender (Koordinaten nach Videobereich + ggf. Drehung)
 SAFE = {
     "clip8.mov": (0, 0, 2096, 995),
     "clip5.mov": (0, 80, 1180, 1950),
-    "clip7.mov": (0, 0, 1180, 1350),
+    "clip7.mov": (290, 0, 2096, 1180),            # "zoom"-Logo oben links
+    "clip6.mov": (290, 0, 2096, 1080),            # "zoom"-Logo oben links, Schrift ganz unten
     "clip12.mov": (0, 0, 1820, 1000),
-    "clip13.mov": (175, 0, 1550, 1180),
+    "clip13.mov": (0, 0, 2096, 1085),             # Wasserzeichen unten Mitte
     "clip2.mov": (220, 80, 1950, 1000),
     "clip10.mov": (0, 0, 2096, 1180),
+}
+SAFE_SCENE = {
+    "selfie": (150, 0, 1945, 1180),               # schwarze Raender links/rechts
 }
 # eingeblendete Schrift, die im Bereich liegt und weggerechnet wird (x0, y0, x1, y1)
 PATCHES = {
@@ -200,6 +205,10 @@ def load(i):
     s = max(a, p["t"] - 0.12)
     e = min(b, p["t"] + need + 0.15)
     frames, times = _decode(clip, rot, s, e)
+    src_fps = 1.0 / float(np.median(np.diff(times))) if len(times) > 2 else 60.0
+    interp = src_fps < 45 and p["speed"] < 0.75
+    if interp:                                   # 30-fps-Quelle: Zwischenbilder fuer weiche Zeitlupe
+        frames, times = double_rate(frames, times)
     m = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", pre)[-1]
     cw, ch, cx0, cy0 = map(int, m)
     TRACKER = TRACKER or FaceTracker()
@@ -208,7 +217,7 @@ def load(i):
     found = int((~np.isnan(raw[:, 0])).sum())
     j = i % 10
     side = float(np.nanmedian(raw[:, 2]) / (REF_FACE[j][2] * FRAME_WIDER))
-    x0, y0, x1, y1 = SAFE[clip]
+    x0, y0, x1, y1 = SAFE_SCENE.get(p["scene"], SAFE[clip])
     side = float(np.clip(side, MIN_SIDE, min(x1 - x0, y1 - y0)))
     # Ausschnitt so klein halten, dass Felix im sicheren Bereich IMMER mittig sitzen kann
     yf = REF_FACE[j][1]
@@ -217,7 +226,7 @@ def load(i):
               np.percentile((y1 - fy) / (1 - yf), 5))
     side = float(max(0.75 * MIN_SIDE, min(side, lim)))
     cache[key] = dict(frames=frames, times=times, fx=fx, fy=fy, side=side, safe=(x0, y0, x1, y1),
-                      found=found, total=len(frames), lab=None)
+                      found=found, total=len(frames), lab=None, fps=src_fps, interp=interp)
     return cache[key]
 
 
@@ -365,7 +374,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "shots":
         for i in range(10):
             d = load(i)
-            print(f"shot {i} {SHOTS[i]['scene']:10s} t={SHOTS[i]['t']:.2f} faces {d['found']}/{d['total']} side {d['side']:.0f}")
+            print(f"shot {i} {SHOTS[i]['scene']:10s} t={SHOTS[i]['t']:.2f} faces {d['found']}/{d['total']} "
+                  f"side {d['side']:.0f} src {d['fps']:.0f} fps interp {d['interp']}")
         sys.exit(0)
     enc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{W}", "-r", str(FPS), "-i", "-",
