@@ -26,7 +26,9 @@ Wichtige Dateien:
 
 ## Ablauf, der sich bewährt hat
 
-1. **Medien:** Uploads liegen unter `/root/.claude/uploads/<session>/`. Für das Felix-Projekt ordnet `projects/felix-sorinyx/link_media.py` sie automatisch zu (über md5).
+1. **Medien:** Uploads liegen unter `/root/.claude/uploads/<session>/`. Für das Felix-Projekt ordnet `projects/felix-sorinyx/link_media.py` sie automatisch zu (über md5), für die anderen Mitglieder `projects/skz-material/link_media.py` (Liste mit Szenen: `projects/skz-material/manifest.json`).
+   * **Wer ist drauf?** Personen nie am Gesicht bestimmen. Bei neuen Clips ein Übersichtsbild mit nummerierten Szenen (1a, 1b …) schicken und den Nutzer sagen lassen, wer drauf ist. Das dann in `manifest.json` eintragen.
+   * Upload-Grenze des Nutzers: 30 MB, also etwa 12 s Bildschirmaufnahme pro Datei.
 2. **Referenz zerlegen:**
    * Alle Bilder mit Zeitstempel ausgeben: `ffmpeg -i ref.mp4 -vf drawtext=...%{pts} -fps_mode passthrough f_%04d.png`
    * Raster zu je 10 Bildern pro Zeile ansehen, Schnitte und Effekte notieren.

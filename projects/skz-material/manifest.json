@@ -1,0 +1,56 @@
+{
+  "_info": "Stray-Kids-Material des Nutzers. Mitglied laut Nutzer (nicht per Gesichtserkennung bestimmt). Zeiten in Sekunden der Bildschirmaufnahme. Videobereich je Szene bei Bedarf mit cropdetect/face_track bestimmen.",
+  "files": {
+    "bangchan_01.mov": {
+      "md5": "1c73468feba78d7fd057727c7cb1e492", "length": 12.87, "member": "Bang Chan",
+      "upload": "ScreenRecording_11-16-2026_12-55-56_1.mov",
+      "scenes": [
+        {"id": "1a", "from": 0.00, "to": 2.50, "what": "schwarzes Shirt, Mikro, Stadion", "ok": true},
+        {"id": "1b", "from": 2.50, "to": 4.90, "what": "gestreiftes Hemd, blaue Sitze", "ok": true},
+        {"id": "1c", "from": 8.60, "to": 12.87, "what": "Lederjacke, Ziegelwand, lacht", "ok": true},
+        {"id": "1c-", "from": 5.40, "to": 6.30, "what": "Lederjacke (YouTube-Leiste '+10' im Bild)", "ok": false},
+        {"id": "1d", "from": 6.30, "to": 7.77, "what": "hellblaues Hemd, unscharf, YouTube-Leiste", "ok": false}
+      ]
+    },
+    "in_01.mov": {
+      "md5": "2d621ecf99a0abff86ee93ac6dec6245", "length": 2.53, "member": "I.N",
+      "upload": "ScreenRecording_11-16-2026_12-52-17_1.mov",
+      "scenes": [
+        {"id": "2", "from": 0.00, "to": 2.30, "what": "graue Straehnen, lehnt am Tisch ('TALKER'-Logo unten rechts wegschneiden)", "ok": true}
+      ]
+    },
+    "changbin_01.mov": {
+      "md5": "3a651a4deaeb045180132495ccb3e078", "length": 12.10, "member": "Changbin",
+      "upload": "ScreenRecording_11-16-2026_12-43-40_1.mov",
+      "scenes": [
+        {"id": "3a", "from": 0.00, "to": 2.33, "what": "schwarze Weste, Kette, Hand an der Wange", "ok": true},
+        {"id": "3b", "from": 2.33, "to": 5.33, "what": "lila Hintergrund ('aurora'-Wasserzeichen links wegschneiden)", "ok": true},
+        {"id": "3c", "from": 5.33, "to": 8.27, "what": "Hoodie an roten Spinden", "ok": true},
+        {"id": "3d", "from": 8.27, "to": 10.80, "what": "tanzt, seitlich aufgenommen -> 90 Grad im Uhrzeigersinn drehen", "ok": true},
+        {"id": "3e", "from": 10.80, "to": 11.30, "what": "Anzug, 'BEHIND CUT', kleines Player-Fenster", "ok": false}
+      ],
+      "end_junk": [11.30, 12.10]
+    },
+    "seungmin_01.mov": {
+      "md5": "9c5c880662e9290dfea3e1e5333bfa9c", "length": 12.27, "member": "Seungmin",
+      "upload": "ScreenRecording_11-16-2026_01-53-51_1.mov",
+      "scenes": [
+        {"id": "4a", "from": 0.00, "to": 5.63, "what": "Buehne, Arme hoch, lacht (Lichtflackern)", "ok": true},
+        {"id": "4b", "from": 5.63, "to": 8.07, "what": "braune Haare, weisses Studio, lacht (kleiner Text oben links wegschneiden)", "ok": true},
+        {"id": "4c", "from": 8.07, "to": 8.95, "what": "GRUPPE 'Little House' (alle zusammen), ab ~9,0 s YouTube-Leiste", "ok": true, "member": "Gruppe"},
+        {"id": "4d", "from": 9.60, "to": 10.37, "what": "tanzt im Flur, Untertitel unten", "ok": false},
+        {"id": "4e", "from": 10.37, "to": 11.07, "what": "Hanbok, sitzt, grosser Untertitel", "ok": false},
+        {"id": "4f", "from": 11.07, "to": 12.27, "what": "weisses Outfit mit Muetze, kleines Player-Fenster", "ok": false}
+      ]
+    },
+    "hyunjin_01.mov": {
+      "md5": "e77554dfa76b6bb9b8d0c53e73f01292", "length": 7.07, "member": "Hyunjin",
+      "upload": "ScreenRecording_11-16-2026_01-50-47_1.mp4",
+      "scenes": [
+        {"id": "5a", "from": 0.00, "to": 5.53, "what": "Spiegel-Selfie, Haare werden gemacht", "ok": true},
+        {"id": "5b", "from": 5.53, "to": 6.30, "what": "graues Hemd vor der Wand, Untertitel", "ok": false}
+      ],
+      "end_junk": [6.30, 7.07]
+    }
+  }
+}
