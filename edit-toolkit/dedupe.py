@@ -4,7 +4,7 @@ Bildschirmaufnahmen laufen mit 60 Bildern/s; ein 30-fps-Video erscheint darin al
 ein 24-fps-Video als A A A B B C C C ...  Ein fester Schwellwert (z. B. 0,18) wirft bei sehr ruhigen
 Szenen (Gesicht spricht, Person steht) echte Bilder weg -> ruckelt. Daher:
 
-    Bild i ist ein Duplikat, wenn seine Aenderung zum Vorgaenger klein ist (< 0,06) UND
+    Bild i ist ein Duplikat, wenn seine Aenderung zum Vorgaenger klein ist (< 0,5) UND
     deutlich kleiner als die Aenderungen der Nachbarn (< 0,35 x Maximum der Nachbar-Aenderungen).
 
     keep = unique_indices(frames)          # frames: Liste/Array von Bildern (RGB oder Grau)
@@ -22,7 +22,7 @@ def frame_diffs(frames, size=96):
     return np.abs(np.diff(small, axis=0)).mean(axis=(1, 2))
 
 
-def unique_indices(frames, abs_max=0.06, rel=0.35):
+def unique_indices(frames, abs_max=0.5, rel=0.35):
     d = frame_diffs(frames)
     keep = [0]
     for i, v in enumerate(d):
