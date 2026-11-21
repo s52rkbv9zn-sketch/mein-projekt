@@ -12,7 +12,7 @@ Wichtige Dateien:
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)
 
-1. **Keine eigene Schrift / kein Text im Video.** Aus den Quellen alles wegschneiden, was nicht zur Person gehört: Untertitel, Übersetzungen, YouTube-Leisten, Sender-Logos, Wasserzeichen. Schrift auf der Person selbst (Kleidung) ist erlaubt.
+1. **Keine eigene Schrift / kein Text im Video.** Aus den Quellen alles wegschneiden, was nicht zur Person gehört: Untertitel, Übersetzungen, YouTube-Leisten, Sender-Logos, Wasserzeichen. Schrift auf der Person selbst (Kleidung) ist erlaubt. **Ausnahme:** Der Nutzer nennt den Text ausdrücklich (z. B. TikTok-Trend „STAYs, you have one job… / Like for Felix / Comment your bias“). Dann TikTok-Stil: TikTok Sans SemiBold (`edit-toolkit/TikTokSans-600.ttf`), weiß mit schwarzer Kontur, kurzes Pop-in.
 2. **Intro = ein einziger Clip.** Die Effekte gehören in den Clip: Stotter-Sprünge im selben Clip, S/W-Flackern, Zoom-Stöße, Farbe weich ausblenden. Mehrere verschiedene Clips im Intro sind nicht gewollt.
 3. **Übergänge 1:1 wie in der Referenz.** Nicht schätzen, sondern Bild für Bild messen und vergleichen (siehe Ablauf). Gewünscht: „flüssig, clean, smooth“.
 4. **Schnitte exakt auf den Beat.** Schläge aus der Tonspur messen (`beats.py`). Schnittbild = floor(t × 30). In reinen Trommel-Passagen: jeder Schlag ein Schnitt, alle mit **demselben** sauberen Übergang hintereinander.

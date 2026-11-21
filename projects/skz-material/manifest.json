@@ -243,6 +243,36 @@
      "ok": true
     }
    ]
+  },
+  "gruppe_buehne_01.mov": {
+   "md5": "7ec84add1f65dfda6b4b7d23384a4a4a",
+   "length": 12.38,
+   "member": "Gruppe",
+   "upload": "ScreenRecording_11-16-2026_01-43-09_1.mov",
+   "scenes": [
+    {
+     "id": "8",
+     "from": 0.0,
+     "to": 12.38,
+     "what": "alle 8 auf der Buehne, Fancam (Videobereich crop 1770x1046 bei x=556), 30 fps",
+     "ok": true
+    }
+   ]
+  },
+  "inspo_stays_skip.mov": {
+   "md5": "b34e1865b6176d2460325754af4e486b",
+   "length": 12.13,
+   "member": "Inspo",
+   "upload": "v26044gc0000dbtf9evog65kdqq1md90.mov",
+   "scenes": [
+    {
+     "id": "inspo",
+     "from": 0.0,
+     "to": 12.13,
+     "what": "eigenes, schon gepostetes Video des Nutzers ('Stays will skip, but real Stays...' / Like for Felix / Follow for Hyunjin); Sound 92,4 BPM",
+     "ok": false
+    }
+   ]
   }
  }
 }

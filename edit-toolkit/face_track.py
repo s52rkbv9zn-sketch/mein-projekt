@@ -46,6 +46,7 @@ def track(frames, hint, tracker=None, max_jump=0.25):
     H = frames[0].shape[0]
     prev = np.array(hint, np.float32)
     prev_h = None
+    misses = 0
     for i, im in enumerate(frames):
         faces = tracker.detect(im)
         best, best_cost = None, None
@@ -55,10 +56,18 @@ def track(frames, hint, tracker=None, max_jump=0.25):
             cost = d + 0.3 * size_pen - 0.05 * (fh / H) - 0.05 * sc
             if best_cost is None or cost < best_cost:
                 best, best_cost = (cx, cy, fh), cost
-        if best is not None and (prev_h is None or np.hypot(best[0] - prev[0], best[1] - prev[1]) / H < max_jump):
+        jump_ok = best is not None and (prev_h is None or np.hypot(best[0] - prev[0], best[1] - prev[1]) / H < max_jump)
+        # nach einem Schnitt in der Quelle (2 Bilder ohne passenden Treffer): auf das groesste Gesicht neu einrasten
+        relock = best is not None and not jump_ok and misses >= 2
+        if relock:
+            best = max(((cx, cy, fh) for cx, cy, fw, fh, sc in faces), key=lambda z: z[2])
+        if jump_ok or relock:
             out[i] = best
             prev = np.array(best[:2], np.float32)
             prev_h = best[2]
+            misses = 0
+        else:
+            misses += 1
     return out
 
 
