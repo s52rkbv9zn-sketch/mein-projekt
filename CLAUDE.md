@@ -9,6 +9,7 @@ Wichtige Dateien:
 * `docs/effekte-katalog.md`: alle Übergänge und Effekte der Referenz mit genauen Werten. **Vor jedem Edit lesen.**
 * `edit-toolkit/`: CC-Filter (`look.py`), Teal-Look, Analyse-Werkzeuge (`analyse/`)
 * `projects/felix-sorinyx/`: fertiges Projekt (Renderer v15, Szenenliste, gemessene Kamerakurve)
+* `projects/felix-anzug/`: Felix-Edit nach Referenz 5 (Hochformat 3:4, Farbe/Schwarz-Weiß im Takt, Wische, Negativ-Kästchen; Hauptteil wiederholt sich)
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)
 

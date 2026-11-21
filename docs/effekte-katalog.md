@@ -144,3 +144,59 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Farbangleichung je Szene** an die Vorbild-Szene (Lab, Stärke L 0,45, a/b 0,6, Streuungsverhältnis begrenzt auf 0,75–1,35).
 * **Härte-Maß:** mittlere größte Bildänderung am Schnitt (64×64-Bilder): Vorbild 54,7, v1 67,0, v2 53,0.
 * **Schiebe-Übergang:** Die neue Hälfte stark abgedunkelt (×0,45) und gestreift, wie im Vorbild.
+
+---
+
+# Referenz 5: „Anzug“-Edit (Fashion-Event, schwarzer Anzug), umgesetzt in `projects/felix-anzug`
+
+576×768 (3:4 Hochformat), 30 fps, 14 s, Song ca. 99 BPM (Achtel = 9 Bilder). Ausgabe bei uns 1080×1440.
+
+* **Aufbau:**
+  * Intro 0–103: EIN Clip, Zeitlupe, ruhige Kamera (Zoom ±0,5 %).
+  * Hauptteil 104–251: 6 Szenen (Schnitte 104, 124, 140, 178, 196, 215).
+  * **252–399 = exakt dieselben Bilder wie 104–251** (Pixel-Abweichung nur Kompression).
+  * Ab 400 schwarz.
+* **Seitlicher Wisch** (Intro raus, 101–106, und S6 → S1, 250–253), waagerechte Bewegungsunschärfe als Anteil der Breite, Bild läuft seitlich herum:
+  * raus: 0,024 (Versatz +1,4 %) → 0,20 (+9,8 %) → 0,85 (+14 %)
+  * rein: ≥1,4 (ganz verwischt) → 0,71 (Versatz −15 %) → 0,135 → 0,03
+  * Das neue Bild wächst dabei von 0,76 auf 1,0 (Zoom hinein, abbremsend).
+* **Weißblitz** (Bild 115): Schwarz-Weiß und stark aufgehellte Kurve `20 + 235·(1−e^(−4y))/(1−e^(−4))`. Dunkles bleibt mittelgrau, Helles wird weiß.
+* **Unschärfe-Blitz** (123–127):
+  * 123 altes Bild σ 60 (bei 576 px) ×1,13
+  * dann das neue Bild σ 14 → 7 → 3 → 1, das von 1,25× herauszoomt
+* **Geteiltes Bild** (140/141):
+  * 140: oben (bis 49,5 %) das alte Bild weiter hineingezoomt mit Zoom-Unschärfe, unten das neue Bild in S/W, 1,7× mit Zoom-Unschärfe
+  * 141: oben (bis 55 %) das neue Bild in S/W 1,35× hell, unten S/W senkrecht verwischt und dunkler
+  * 142–145: Farbe mit abklingender Zoom-Unschärfe, Helligkeit 1,14 → 1,0
+* **Farbe ↔ Schwarz-Weiß im Takt** innerhalb derselben Szene: S/W 153–163, Farbe 164, S/W 171–179; S6: S/W 226–236, Farbe 237, S/W 245–251.
+  * An jedem Wechsel ein **Zoom-Stoß**: 2 Bilder davor zunehmend, 2–3 Bilder danach abklingend.
+  * Zoom-Unschärfe um das Gesicht, log-Umfang etwa 0,2–0,3. Die angepassten Werte waren ~0,5, das war am Bild zu stark.
+  * Danach zoomt es wieder heraus. Zurück in Farbe kommt ein Sprung hinein (S6: +42 % über 237–239).
+  * S/W = Luma mit Kontrast ×1,05.
+* **Negativ-Kästchen** (je 1 Bild): Rechteck mit umgekehrter Helligkeit (Graustufen-Negativ).
+  * 165: x 0,170–0,339, y 0,293–0,670
+  * 241: Augenbalken x 0,3125–0,672, y 0,255–0,339
+* **Senkrechter Wisch** (176–183), senkrechte Unschärfe als Anteil der Höhe:
+  * 176: 0,15
+  * 177: 1,5 (ganz verwischt)
+  * 178/179: neues Bild S/W 1,1/0,8, sehr hell (×1,45/×1,2)
+  * 180: Farbe 0,35 ×1,13
+  * 181: 0,22
+  * 182: 0,10 + σ 2
+* **Heller Wisch** (196/197):
+  * 196: neues Bild schräg verwischt (Winkel 24°, Länge 1,6 × Breite) ×1,1 + 18 % weiß
+  * 197: S/W, verwischt, 55 % weiß
+  * 198: fast scharf
+* **Weißer Schiebe-Balken** (214/215):
+  * 214: linke Hälfte altes Bild, rechte Hälfte Balken
+  * 215: linke Hälfte Balken, rechte Hälfte neues Bild σ 40
+  * Balken = senkrechter Verlauf, oben 254, ab 37 % abfallend auf 156 unten
+  * Danach langes Scharfwerden σ 24 → 19 → 15 → 12 → 8,5 → 8 → 5,5 → 3 → 1,5 (216–224)
+* **Kamera:** Zoom je Bild aus `ref_camera.json`:
+  * vor Schnitten und Farbwechseln beschleunigt hinein
+  * danach abbremsend heraus
+* **Mess-Werkzeug:** Bild-Anpassung (Skalierung, Versatz, Unschärfe-Art, Helligkeit) gegen ein scharfes Nachbarbild, `edit-toolkit/analyse/bild_anpassung.py`. Bei Zoom-Unschärfe überschätzt die Anpassung, deshalb am Bild nachregeln.
+* **Felix-Umsetzung:**
+  * Die Quellen sind enger gefilmt als das Vorbild (Gesicht 300–500 px bei 1180 px Höhe). Deshalb größter Ausschnitt (volle Höhe), Gesicht darf ±0,08 von der Vorbild-Höhe abweichen.
+  * Zoom-Umfang höchstens 1,32, bezogen auf die scharfen Bilder.
+  * Farben blass wie im Vorbild: Lab-Angleichung a/b 0,75, Streuung bis 0,5, Sättigung je Szene 0,72–0,85.
