@@ -258,4 +258,8 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Gemessen ohne Ränder, TikTok-Zeichen und Schrift. Die scharfen Einblendungen täuschen sonst Schärfe vor: unmaskiert 0,60, maskiert 0,03.
   * **Lehre:** Unschärfe nach Augenmaß in kleinen Rastern war etwa 10× zu stark (v1: hb 0,10–0,45; gemessen meist 0,01–0,05).
   * Bei sehr weichen Vorbild-Bildern reicht eine Wisch-Unschärfe allein nicht, weil Kanten in Wischrichtung erhalten bleiben. Dann Wisch auf 0,12 begrenzen und den Rest per Gauß ausgleichen.
-* **Farben:** sanfter CC-Filter plus Lab-Angleichung an die Vorbild-Szene (L 0,65, a/b 0,82, Streuungsverhältnis 0,5–1,4).
+* **Farben:** sanfter CC-Filter plus Lab-Angleichung an die Vorbild-Szene, getrennt nach Mittelwert und Streuung:
+  * Mittelwert (Helligkeit, Farbstich): L 0,90, a/b 0,95
+  * Streuung (Kontrast, Sättigung): L 0,70, a/b 0,80, Verhältnis begrenzt auf 0,4–1,5
+  * v1 hatte 0,65/0,82 für beides. Dadurch waren dunkle Szenen zu hell und helle zu dunkel, und der Kontrast war doppelt so hoch wie im Vorbild. Die Schnitte waren zu hart: größte Bildänderung 69,7 statt 55,1.
+  * Das Vorbild ist weich, kontrastarm und blaustichig (L-Streuung 9–23).

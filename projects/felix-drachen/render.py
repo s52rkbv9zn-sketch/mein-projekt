@@ -30,7 +30,7 @@ from look import cc
 MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
 REF = os.environ.get("REF6", os.path.join(MEDIA, "reference_drachen.mp4"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
-OUT = os.path.join(OUTDIR, "Felix_Drachen_Edit_v1.mp4")
+OUT = os.path.join(OUTDIR, "Felix_Drachen_Edit_v2.mp4")
 W, H, FPS = 1920, 1080, 30
 ASPECT = W / H
 K = W / 1024.0                   # Pixelwerte wurden bei 1024 px Breite gemessen
@@ -94,8 +94,8 @@ def _fx(frames, **kw):
         FX.setdefault(f, {}).update(kw)
 
 
-for f, z, g in [(18, 1.12, 1.35), (19, 1.10, 1.30), (20, 1.08, 1.22), (21, 1.06, 1.15)]:
-    _fx([f], zoom=z, gain=g)                                   # Zoom-Stoss + Aufhellen vor dem Schnitt
+for f, z, g in [(16, 1.01, 1.04), (17, 1.03, 1.12), (18, 1.06, 1.30), (19, 1.08, 1.30), (20, 1.10, 1.25), (21, 1.12, 1.18)]:
+    _fx([f], zoom=z, gain=g)                                   # Zoom-Stoss + Aufhellen vor dem Schnitt (gleichmaessig)
 for f, r in zip(range(66, 71), (.9, .8, .6, .35, 0)):
     _fx([f], sig=2.0, **({"ring": r} if r else {}))
 _fx(range(115, 118), vb=0.02)
@@ -111,7 +111,8 @@ for f, r in zip(range(269, 274), (.9, .8, .6, .4, .2)):
     _fx([f], ring=r)
 _fx(range(319, 322), hb=0.03)
 _fx([322], vb=0.1, glitch=1.0)
-_fx([323, 324], vb=0.05)
+_fx([323], vb=0.05, glitch=0.4)
+_fx([324], vb=0.05)
 _fx([325, 326], sig=2)
 for f, r in zip(range(350, 353), (.5, .7, .9)):
     _fx([f], ring=r, sig=1.5)
@@ -355,7 +356,8 @@ def cam(i, f, pad=0.0, extra=1.0):
 # ------------------------------------------------------------------ Farben: CC + Angleichung an die Vorbild-Szene
 REF_ARR = None
 REF_STATS = {}
-STRENGTH = np.array([0.65, 0.82, 0.82], np.float32)
+MEAN_STRENGTH = np.array([0.90, 0.95, 0.95], np.float32)    # Mittelwert (Helligkeit, Farbstich) fast ganz wie Vorbild
+STD_STRENGTH = np.array([0.70, 0.80, 0.80], np.float32)     # Kontrast/Saettigung etwas weniger (Qualitaet)
 
 
 def _lab(img):
@@ -404,10 +406,9 @@ def grade(img, i):
     img = base_look(img)
     ms, ss = shot_stats(i)
     mt, st = ref_stats(i)
-    ratio = np.clip(st / ss, 0.5, 1.4)
-    lab = _lab(img)
-    tgt = (lab - ms) * ratio + mt
-    lab = lab + (tgt - lab) * STRENGTH
+    ratio = 1 + (np.clip(st / ss, 0.4, 1.5) - 1) * STD_STRENGTH
+    m_eff = ms + (mt - ms) * MEAN_STRENGTH
+    lab = m_eff + (_lab(img) - ms) * ratio
     return np.clip(cv2.cvtColor(lab.astype(np.float32), cv2.COLOR_LAB2RGB), 0, 1) * 255.0
 
 
@@ -539,7 +540,7 @@ def glitch(img, k):
     x = 0
     while x < W:
         w_ = int(rng.integers(40, 180))
-        sh = int(rng.integers(-60, 60) * k)
+        sh = int(rng.integers(-120, 120) * k)
         out[:, x:x + w_] = np.roll(img[:, x:x + w_], sh, axis=0)
         x += w_
     return out
@@ -566,10 +567,10 @@ def apply_fx(img, i, spec):
         img = hblur(img, spec["hb"])
     if spec.get("vb"):
         img = vblur(img, spec["vb"])
-    if spec.get("glitch"):
-        img = glitch(img, spec["glitch"])
     if spec.get("sig", 0) > 0.3:
         img = cv2.GaussianBlur(img, (0, 0), spec["sig"] * K)
+    if spec.get("glitch"):                                    # nach der Unschaerfe: Streifen bleiben sichtbar
+        img = glitch(img, spec["glitch"])
     if rings is not None:
         img = 255.0 * (1 - (1 - np.clip(img / 255.0, 0, 1)) * (1 - rings))
     img = img * spec.get("gain", 1.0)
