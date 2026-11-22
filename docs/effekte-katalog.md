@@ -222,3 +222,40 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Die Quellen sind enger gefilmt als das Vorbild (Gesicht 300–500 px bei 1180 px Höhe). Deshalb größter Ausschnitt (volle Höhe), Gesicht darf ±0,08 von der Vorbild-Höhe abweichen.
   * Zoom-Umfang höchstens 1,32, bezogen auf die scharfen Bilder.
   * Farben blass wie im Vorbild: Lab-Angleichung a/b 0,75, Streuung bis 0,5, Sättigung je Szene 0,72–0,85.
+
+---
+
+# Referenz 6: „Drachen“-Edit (Animationsfilm, 16:9), umgesetzt in `projects/felix-drachen`
+
+1024×576, 30 fps, 33,6 s.
+
+* **Länge:** Edit bis Bild 887 (29,6 s), danach TikTok-Abspann. Den lassen wir weg.
+* **Ausgabe:** 1920×1080.
+* **Ton:** Die Vorbild-Musik ist sehr leise (−25,5 LUFS) und läuft bis 29,5 s, danach kommt der laute TikTok-Ton. Wir nehmen die Musik bis 29,6 s, normalisieren auf −14 LUFS und blenden 0,6 s aus.
+* **Aufbau:** 27 Szenen. Schnitte bei 0, 22, 45, 66, 118, 146, 172, 215, 247, 269, 322, 353, 375, 430, 481, 537, 565, 589, 649, 670, 692, 750, 775, 797, 821, 840, 868.
+  * Szene 27 ist dieselbe Einstellung wie Szene 1 (Klammer). Bei uns ist das derselbe Felix-Clip (Konzert, blau).
+* **Musik:** ruhig, kaum Schläge (`beats.py` findet nur schwache Einsätze). Die Schnitte folgen der Melodie, deshalb übernehmen wir die Schnittbilder 1:1.
+* **Übergänge** (Bildnummern; Stärken per `calibrate.py` gemessen):
+  * Zoom-Stoß + Aufhellen 18–21: Zoom 1,12 → 1,06, Helligkeit ×1,35 → ×1,15
+  * waagerechter Wisch: 143–155, 169–171, 319–321, 586–594, 646–648, 667–669, 840–844
+  * senkrechter Wisch: 115–117, 212–214, 322–324 (322 + Glitch-Streifen), 478–485, 818–820
+  * Zoom-Unschärfe: 353–357, 427–434, 534–548, 562–564, 649–654
+  * weiches Scharfwerden: 66–70, 118–122, 215–219, 244–251 (247 dunkler ×0,6), 325–326, 670–674, 689–696, 747–754, 772–779, 797–801, 821–826, 865–872 (867 mit 30 % Weißschleier)
+  * **Ring-Bokeh**: 66–69, 269–273, 350–352, 431–433, 478–480, 649–651 (größere Ringe), 794–796, 837–839, 869–871.
+    * Helle Detail-Spitzen werden zu einzelnen dünnen Ringen mit leichtem Rot/Blau-Saum. Radius ~12 px bei 1024, Linie ~2,5 px.
+    * Die Ringe bilden Ketten entlang heller Kanten.
+    * Umsetzung: Spitzen mit Mindestabstand 0,75·Radius, höchstens 30 + 110·Stärke Ringe.
+    * Das Gesicht wird geschont, sonst wirken die Augen „doppelt“. Erster Versuch per Faltung mit Ring-Kern gab Doppel-Konturen statt Ringen.
+  * **Strecken** 371–374: Das Bild wird ab x0 waagerecht 5–10× gestreckt, ab 373 um x0 gespiegelt, so entstehen V-Formen. Bei Felix x0 auf den Kopf legen, sonst wird nur grauer Hintergrund gestreckt.
+  * **Wölbung** 375–379: Die Mitte wird nach unten gebogen (0,30 → 0,03 der Höhe) und senkrecht gestreckt (3 → 1).
+  * **Sanduhr** 567–570: Breite je Zeile m(y) = m0 + m1·|2y−1|, von 0,20/1,2 bis 0,97/0,05. Außen schwarz, senkrecht verwischt.
+* **Kamera:** Zoom und Drehung je Bild aus `ref_camera.json`.
+  * gedämpft: Zoom ×0,55, Drehung ×0,3
+  * je Szene Zoom höchstens 1,40, Drehung höchstens ±3°
+  * Bewegungsunschärfe passend zur Geschwindigkeit
+* **Unschärfe messen statt schätzen (`projects/felix-drachen/calibrate.py`):**
+  * Für jedes Übergangsbild das Schärfe-Verhältnis wie im Vorbild einstellen: Detail-Energie relativ zu den ruhigen Bildern der Szene.
+  * Gemessen ohne Ränder, TikTok-Zeichen und Schrift. Die scharfen Einblendungen täuschen sonst Schärfe vor: unmaskiert 0,60, maskiert 0,03.
+  * **Lehre:** Unschärfe nach Augenmaß in kleinen Rastern war etwa 10× zu stark (v1: hb 0,10–0,45; gemessen meist 0,01–0,05).
+  * Bei sehr weichen Vorbild-Bildern reicht eine Wisch-Unschärfe allein nicht, weil Kanten in Wischrichtung erhalten bleiben. Dann Wisch auf 0,12 begrenzen und den Rest per Gauß ausgleichen.
+* **Farben:** sanfter CC-Filter plus Lab-Angleichung an die Vorbild-Szene (L 0,65, a/b 0,82, Streuungsverhältnis 0,5–1,4).

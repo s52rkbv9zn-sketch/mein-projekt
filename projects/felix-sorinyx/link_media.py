@@ -29,6 +29,7 @@ EXPECTED = {
     "reference.mp4": ("695e27de52f9c37c77a90530af93a156", 21.330),
     "reference_konzert.mov": ("2c813e447b6ef0dce0e0e3c5b0511473", 17.430),   # Referenz 4 (Konzert-Edit)
     "reference_anzug.mov": ("84c32ee4b2afddace7730b76ec0f8a1b", 13.966),   # Referenz 5 (Anzug-Edit)
+    "reference_drachen.mp4": ("ce202601a7154b74cbb949d1cac33688", 33.624),   # Referenz 6 (Drachen-Edit, 16:9)
 }
 
 
