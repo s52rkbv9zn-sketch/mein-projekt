@@ -150,7 +150,13 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * I Konzert (Gesicht sichtbar, nicht nach oben geneigt)
   * J Kapuze
 * **Bewegte Sticker** (z. B. Glitzer-Emoji am Kopf in H5a ab 1,55 s) lassen sich nicht sauber wegrechnen. Lieber einen Zeitraum ohne Sticker wählen. Gefunden über die Zahl gelber, gesättigter Pixel je Bild.
-* Ruckel-Check: Vorbild 7, Edit 2 ungleichmäßige Stellen.
+* **v3 (Feedback: „noch flüssiger, Clip 7 wackelig, Clip 8 raus“):**
+  * Gleichmäßige Zeitlupe mit `slowmo.resample()`. Ursache war ein ungleichmäßiger Bildtakt der Quellen.
+  * Wechsel-Unruhe je Szene im Mittel 0,26 → 0,13 (Vorbild 0,12). Clip 3 0,81 → 0,09, Clip 7 0,64 → 0,26.
+  * Clip 7 jetzt ein ruhiger Bühnen-Moment statt der schnellen „Psst“-Geste.
+  * Clip 8 jetzt das Vlog mit schwarzer Weste statt der Kusshand.
+  * Clip 1 und 10 auf den jeweils ruhigsten Moment gelegt. Gesichtsführung weicher (σ 0,18 s).
+  * Ruckel-Check: Vorbild 7, Edit 0 ungleichmäßige Stellen.
 
 ## Referenz 4, Version 2 (Feedback des Nutzers: „Zeitlupe, Felix mittig, Übergänge zu hart“)
 

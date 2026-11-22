@@ -24,7 +24,9 @@ BASE = "crop=2096:1180:230:0"
 # Hyunjin-Szenen: Datei, von, bis (s), Vorfilter (Ausschnitt nur als Startpunkt fuer die Gesichtssuche), Stimmung
 SCENES = {
     "stage_look": ("hyunjin_03.mov", 0.00, 6.08, "crop=1180:1180:458:0", "stage"),     # H3a Blick in die Kamera
-    "stage_shh":  ("hyunjin_03.mov", 6.08, 10.37, "crop=1180:1180:458:0", "stage"),    # H3b "Psst"-Geste
+    "stage_shh":  ("hyunjin_03.mov", 6.08, 10.37, "crop=1180:1180:458:0", "stage"),    # H3b "Psst"-Geste (wackelig, nicht mehr benutzt)
+    "stage_calm": ("hyunjin_03.mov", 6.08, 10.37, "crop=1180:1180:458:0", "stage"),    # H3b ruhiger Moment, Blick in die Kamera
+    "vlog":       ("hyunjin_02.mov", 0.00, 8.54, "crop=1000:1000:560:0", "warm"),      # H2a schwarze Weste, Blick in die Kamera
     "heart":      ("hyunjin_05.mov", 4.03, 10.18, "crop=1000:1000:500:0", "bright"),   # H5b Herz-Haende
     "concert_mic":("hyunjin_06.mov", 10.20, 11.96, "crop=990:990:560:0", "stage"),     # H6b singt mit Mikro
     "crest":      ("hyunjin_05.mov", 10.18, 11.66, "crop=1060:1060:700:90", "cool"),   # H5c Fotoshooting, Wappen
@@ -35,12 +37,12 @@ SCENES = {
     "hood":       ("hyunjin_04.mov", 3.90, 7.06, "crop=1180:1180:300:0", "cool"),      # H4b Kapuze, Haende am Gesicht
 }
 from face_track import FaceTracker, track, smooth_track
-from slowmo import double_rate
+from slowmo import resample
 
 MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(SKZ, "media"))
 REF = os.environ.get("REF4", os.path.join(FELIX, "media", "reference_konzert.mov"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
-OUT = os.path.join(OUTDIR, "Hyunjin_Konzert_Edit_v2.mp4")
+OUT = os.path.join(OUTDIR, "Hyunjin_Konzert_Edit_v3.mp4")
 W, FPS = 1080, 30
 K = W / 576.0
 NF, END = 523, 470
@@ -50,16 +52,16 @@ CUTS = HALF + [c + 235 for c in HALF]
 
 # Szene, Startzeit in der Quelle, Tempo (0.5 = halbe Geschwindigkeit bei 60-fps-Quelle)
 PLAN = [
-    dict(scene="stage_look",  t=1.30,  speed=0.5),   # A  Buehne, Blick in die Kamera
+    dict(scene="stage_look",  t=0.40,  speed=0.5),   # A  Buehne, Blick in die Kamera (ruhigster Moment)
     dict(scene="heart",       t=6.80,  speed=0.5),   # B  Herz-Haende, verspielt (Takt-Blitze)
     dict(scene="concert_mic", t=10.45, speed=0.5),   # C  Konzert, singt
     dict(scene="crest",       t=10.50, speed=0.5),   # D  Fotoshooting
     dict(scene="glasses",     t=0.95,  speed=0.5),   # E  heller Hintergrund, Brille
     dict(scene="mirror",      t=2.00,  speed=0.5),   # F  altes Spiegel-Selfie, Blick zur Seite
-    dict(scene="stage_shh",   t=9.60,  speed=0.5),   # G  "Psst"-Geste auf der Buehne (Takt-Blitze)
-    dict(scene="kiss",        t=7.50,  speed=0.5),   # H  kurz, Kusshand
+    dict(scene="stage_calm",  t=6.70,  speed=0.5),   # G  Buehne, ruhiger Blick in die Kamera (Takt-Blitze)
+    dict(scene="vlog",        t=2.25,  speed=0.5),   # H  kurz, schwarze Weste, Blick in die Kamera (statt Kusshand)
     dict(scene="concert",     t=2.90,  speed=0.5),   # I  Konzert (Gesicht sichtbar, nicht nach oben geneigt)
-    dict(scene="hood",        t=5.00,  speed=0.5),   # J  Kapuze, Haende am Gesicht
+    dict(scene="hood",        t=4.20,  speed=0.5),   # J  Kapuze, Haende am Gesicht (ruhigster Moment)
 ]
 SHOTS = PLAN + PLAN
 # Bereiche ohne Untertitel / Logos / schwarze Raender (Koordinaten nach Videobereich + ggf. Drehung)
@@ -67,6 +69,8 @@ SAFE = {}
 SAFE_SCENE = {                                    # Bereiche ohne Logos, Untertitel, Rahmen (x0, y0, x1, y1)
     "stage_look": (240, 0, 1750, 1180),           # Sender-Logos oben links / oben rechts
     "stage_shh": (240, 0, 1750, 1180),
+    "stage_calm": (240, 0, 1750, 1180),
+    "vlog": (0, 0, 1920, 1000),                   # Untertitel unten, "TALKER"-Logo unten rechts
     "heart": (0, 0, 1920, 1000),                  # Untertitel unten, "TALKER"-Logo unten rechts
     "concert_mic": (360, 0, 1735, 990),           # schwarze Raender, Untertitel "Ace." unten
     "crest": (40, 90, 2056, 1150),                # heller Bildrahmen, kleiner Text oben links
@@ -217,14 +221,18 @@ def load(i):
     e = min(b, p["t"] + need + 0.15)
     frames, times = _decode(clip, rot, s, e)
     src_fps = 1.0 / float(np.median(np.diff(times))) if len(times) > 2 else 60.0
-    interp = src_fps < 45 and p["speed"] < 0.75
-    if interp:                                   # 30-fps-Quelle: Zwischenbilder fuer weiche Zeitlupe
-        frames, times = double_rate(frames, times)
+    # gleichmaessige Zeitlupe: fuer jedes Ausgabebild genau ein Quellbild zur richtigen Zeit
+    # (echtes Bild, wenn vorhanden, sonst Zwischenbild) - auch bei ungleichmaessigem Bildtakt der Aufnahme
+    want = [p["t"] + (f - CUTS[i]) / FPS * p["speed"] for f in range(CUTS[i] - 4, shot_end(i) + 4)]
+    want = [min(max(w_, float(times[0])), float(times[-1])) for w_ in want]
+    n_real = len(frames)
+    frames, times = resample(frames, times, want)
+    interp = True
     m = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", pre)[-1]
     cw, ch, cx0, cy0 = map(int, m)
     TRACKER = TRACKER or FaceTracker()
     raw = track(list(frames), hint=(cx0 + cw / 2, cy0 + ch / 2), tracker=TRACKER)
-    fx, fy, fh = smooth_track(times, raw, sigma_s=0.12)
+    fx, fy, fh = smooth_track(times, raw, sigma_s=0.18)    # weicher gefuehrt (ruhigerer Ausschnitt)
     found = int((~np.isnan(raw[:, 0])).sum())
     j = i % 10
     sf = SCENE_FRAME.get(p["scene"], {})
@@ -238,7 +246,7 @@ def load(i):
               np.percentile((y1 - fy) / (1 - yf), 5))
     side = float(max(0.75 * MIN_SIDE, min(side, lim)))
     cache[key] = dict(frames=frames, times=times, fx=fx, fy=fy, side=side, safe=(x0, y0, x1, y1),
-                      found=found, total=len(frames), lab=None, fps=src_fps, interp=interp)
+                      found=found, total=n_real, lab=None, fps=src_fps, interp=interp)
     return cache[key]
 
 
