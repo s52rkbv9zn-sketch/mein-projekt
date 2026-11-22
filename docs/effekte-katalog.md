@@ -136,6 +136,22 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Look** `home_look.py`: warm, weich, leicht verblasst.
 
 
+## Referenz 4 mit Hyunjin (`projects/hyunjin-konzert`)
+
+* Derselbe Renderer wie Felix v3, nur Szenen, sichere Bereiche und Material getauscht. Doppelte Bilder werden relativ gefiltert (`dedupe.unique_indices`).
+* Szenen-Wahl nach Handlung im Vorbild:
+  * A Blick in die Kamera (Bühne)
+  * B verspielt mit Takt-Blitzen (Herz-Hände)
+  * C singt (Konzert)
+  * D/E ruhig und hell (Fotoshooting, Brille)
+  * F altes Spiegel-Selfie
+  * G Geste mit Takt-Blitzen („Psst“)
+  * H kurz und süß (Kusshand)
+  * I Konzert (Gesicht sichtbar, nicht nach oben geneigt)
+  * J Kapuze
+* **Bewegte Sticker** (z. B. Glitzer-Emoji am Kopf in H5a ab 1,55 s) lassen sich nicht sauber wegrechnen. Lieber einen Zeitraum ohne Sticker wählen. Gefunden über die Zahl gelber, gesättigter Pixel je Bild.
+* Ruckel-Check: Vorbild 7, Edit 2 ungleichmäßige Stellen.
+
 ## Referenz 4, Version 2 (Feedback des Nutzers: „Zeitlupe, Felix mittig, Übergänge zu hart“)
 
 * **Zeitlupe:** Felix-Szenen aus 60-fps-Quellen mit halber Geschwindigkeit, silver (41 fps) mit 0,7. Bildänderung innerhalb der Szenen: v1 8,9, v2 5,4, Vorbild 3,9.

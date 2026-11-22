@@ -10,6 +10,7 @@ Wichtige Dateien:
 * `edit-toolkit/`: CC-Filter (`look.py`), Teal-Look, Analyse-Werkzeuge (`analyse/`)
 * `projects/felix-sorinyx/`: fertiges Projekt (Renderer v15, Szenenliste, gemessene Kamerakurve)
 * `projects/felix-anzug/`: Felix-Edit nach Referenz 5 (Hochformat 3:4, Farbe/Schwarz-Weiß im Takt, Wische, Negativ-Kästchen; Hauptteil wiederholt sich)
+* `projects/hyunjin-konzert/`: Hyunjin-Edit nach Referenz 4 (Konzert), abgeleitet aus `felix-konzert` (Szenen aus `skz-material`, Kennungen H2a–H6b)
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)
 

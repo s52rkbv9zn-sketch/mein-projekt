@@ -273,6 +273,144 @@
      "ok": false
     }
    ]
+  },
+  "hyunjin_02.mov": {
+   "md5": "e77ca71463d25f1928b26ddc95f2ebec",
+   "length": 9.04,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-01-31_1.mov (9,0 s)",
+   "scenes": [
+    {
+     "id": "H2a",
+     "from": 0.0,
+     "to": 8.54,
+     "ok": true,
+     "what": "Vlog, schwarze Weste, Blick zur Seite (Untertitel unten + 'TALKER'-Logo unten rechts wegschneiden), 30 fps"
+    }
+   ]
+  },
+  "hyunjin_03.mov": {
+   "md5": "394e996a01f17a62c259eba5ef7a4a1c",
+   "length": 10.39,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-01-31_1.mov (10,4 s)",
+   "scenes": [
+    {
+     "id": "H3a",
+     "from": 0.0,
+     "to": 6.08,
+     "ok": true,
+     "what": "Buehne (MBC), rot-schwarze Haare, Blick in die Kamera (Logos oben links/rechts), 30 fps"
+    },
+    {
+     "id": "H3b",
+     "from": 6.08,
+     "to": 10.37,
+     "ok": true,
+     "what": "Buehne, schwarzer Handschuh, 'Psst'-Geste, 30 fps"
+    }
+   ]
+  },
+  "hyunjin_04.mov": {
+   "md5": "052af045263e29bb7123b2daf7f6a241",
+   "length": 12.87,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-00-10_1.mov",
+   "scenes": [
+    {
+     "id": "H4a",
+     "from": 0.0,
+     "to": 3.9,
+     "ok": true,
+     "what": "Kapuze + Versace-Kappe (Logo oben rechts, Untertitel unten)"
+    },
+    {
+     "id": "H4b",
+     "from": 3.9,
+     "to": 7.06,
+     "ok": true,
+     "what": "Kapuze, Haende am Gesicht (Logo oben rechts, Person klein im Hintergrund)"
+    },
+    {
+     "id": "H4c",
+     "from": 7.06,
+     "to": 8.5,
+     "ok": true,
+     "what": "gruene Strickweste, Kaktus, Kusshand (Untertitel unten)"
+    },
+    {
+     "id": "H4d",
+     "from": 8.5,
+     "to": 10.37,
+     "ok": true,
+     "what": "gruene Weste, posiert mit Pluesch-Stulpen"
+    },
+    {
+     "id": "H4e",
+     "from": 10.37,
+     "to": 11.55,
+     "ok": true,
+     "what": "gruene Weste, Kamera im Vordergrund"
+    },
+    {
+     "id": "H4f",
+     "from": 11.55,
+     "to": 12.86,
+     "ok": true,
+     "what": "graue Kapuzenjacke, sitzt, Leute im Hintergrund"
+    }
+   ]
+  },
+  "hyunjin_05.mov": {
+   "md5": "0f522b90b25044beea898df56f5965e3",
+   "length": 11.67,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-14-2026_01-04-29_1.mov",
+   "scenes": [
+    {
+     "id": "H5a",
+     "from": 0.0,
+     "to": 4.03,
+     "ok": true,
+     "what": "Studio, Brille, schwarzer Anzug (Textkasten rechts, Glitzer-Sticker am Kopf, Untertitel unten)"
+    },
+    {
+     "id": "H5b",
+     "from": 4.03,
+     "to": 10.18,
+     "ok": true,
+     "what": "gestreiftes Shirt, Herz-Haende (Untertitel unten links, 'TALKER'-Logo, fremde Hand)"
+    },
+    {
+     "id": "H5c",
+     "from": 10.18,
+     "to": 11.66,
+     "ok": true,
+     "what": "Fotoshooting, grauer Pullover, Wappen (heller Rahmen + kleiner Text oben links)"
+    }
+   ]
+  },
+  "hyunjin_06.mov": {
+   "md5": "d1c193880911d4b0dac2c3a3ece3b52b",
+   "length": 11.99,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-11-2026_17-01-53_1.mov",
+   "scenes": [
+    {
+     "id": "H6a",
+     "from": 0.0,
+     "to": 10.2,
+     "ok": true,
+     "what": "Konzert-Fancam, schwarzes Tanktop, 60 fps (Untertitel 'Ace.' unten; ab ~5 s weitere Person im Bild)"
+    },
+    {
+     "id": "H6b",
+     "from": 10.2,
+     "to": 11.96,
+     "ok": true,
+     "what": "Konzert, singt mit Mikro, 60 fps (Untertitel unten)"
+    }
+   ]
   }
  }
 }
