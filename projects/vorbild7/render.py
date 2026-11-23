@@ -50,7 +50,7 @@ def _fx(frames, **kw):
 if EDIT == "hyunjin":
     REF = os.path.join(FELIX, "media", "reference_rot.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(SKZ, "media"))
-    OUT = os.path.join(OUTDIR, "Hyunjin_Rot_Edit_v3.mp4")
+    OUT = os.path.join(OUTDIR, "Hyunjin_Rot_Edit_v5.mp4")
     SCENES = {
         "concert":    ("hyunjin_06.mov", 0.00, 5.00, "crop=990:990:560:0", "stage"),     # H6a Fancam (eine Person)
         "concert_mic": ("hyunjin_06.mov", 10.20, 11.96, "crop=990:990:560:0", "stage"),   # H6b singt
@@ -90,7 +90,7 @@ if EDIT == "hyunjin":
         dict(scene="hood",        t=4.20,  face=(0.30, 0.24)),             # S8 Nahaufnahme, Haende
         dict(scene="vlog",        t=2.20,  face=(0.30, 0.18)),             # S9
         dict(scene="stage_look",  t=2.10,  face=(0.30, 0.20)),             # S10 Buehne, Handschuh, Blick in die Kamera
-        dict(scene="heart",       t=6.80,  face=(0.26, 0.16)),             # S11 hell
+        dict(scene="heart",       t=8.75,  face=(0.26, 0.16)),             # S11 hell (ruhigster Moment der Herz-Haende)
         dict(scene="hoodie",      t=11.70, face=(0.22, 0.18)),             # S12
         dict(scene="mirror",      t=2.00,  face=(0.30, 0.20)),             # S13
     ]
@@ -125,8 +125,16 @@ if EDIT == "hyunjin":
     _fx(range(223, 228), sig=3)
     _fx(range(231, 237), bw=1.0)
     _fx([236], gain=0.55)
-    _fx([237], wave=(0.10, 0.07, 0.0))
-    _fx([238], wave=(0.07, 0.07, 0.5))
+    _fx([237], wave=(0.05, 0.07, 0.0))                             # Ausschlag ~5 % der Breite (am Vorbild gemessen)
+    _fx([238], wave=(0.035, 0.07, 0.5))
+    # Geisterbild-Echo: vergroesserte, halb durchsichtige Kopie (Vorbild 145-148, 251-253, 287-288, 313-314, 329-330)
+    for _f, _a, _s in [(145, .45, 1.28), (146, .35, 1.22), (147, .22, 1.16), (148, .10, 1.10),
+                       (251, .25, 1.20), (252, .20, 1.15), (253, .10, 1.10), (287, .30, 1.20), (288, .15, 1.12),
+                       (313, .15, 1.15), (314, .30, 1.22), (329, .30, 1.20), (330, .15, 1.12)]:
+        _fx([_f], echo=(_a, _s))
+    _fx([183], flare=(0.235, 1.0))                                 # waagerechter Lichtstreifen (Vorbild 183)
+    for _f, _a in [(250, .035), (251, .03), (252, .015)]:
+        _fx([_f], ripple=(_a, 0.33))                               # fluessige Wellen (Vorbild 250-252)
     _fx([239], sig=1.5)
     _fx(range(246, 249), sig=2)
     _fx([249], hb=0.1, gain=0.3)
@@ -146,7 +154,7 @@ else:
     from scenes import SCENES
     REF = os.path.join(FELIX, "media", "reference_mj.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
-    OUT = os.path.join(OUTDIR, "Felix_MJ_Edit_v1.mp4")
+    OUT = os.path.join(OUTDIR, "Felix_MJ_Edit_v2.mp4")
     SAFE = {
         "clip2.mov": (220, 80, 1950, 1000), "clip3.mov": (520, 0, 2096, 1180), "clip4.mov": (0, 0, 2096, 900),
         "clip5.mov": (0, 80, 1180, 1950), "clip6.mov": (290, 0, 2096, 1080), "clip7.mov": (290, 0, 2096, 1180),
@@ -172,9 +180,12 @@ else:
     END_MODE = "white_fade"
     DAMP_Z, DAMP_R, ZMAX, RMAX = 0.9, 0.3, 1.45, 2.5
     OVERLAYS = [(0, 0, 125, 102), (455, 488, 576, 576)]
-    _fx([151], hb=0.1, bw=0.85)
-    _fx([152], hb=0.1, bw=0.6)
+    _fx([151], hb=0.1, bw=0.8)
+    _fx([152], hb=0.1, bw=0.5)
     _fx(range(153, 158), sig=4)
+    for _f, _h, _v in [(151, .345, 152), (152, .194, 110), (153, .139, 90), (154, .102, 76), (155, .073, 64),
+                       (156, .054, 53), (157, .036, 43), (158, .012, 33), (159, .005, 30)]:
+        _fx([_f], split=(_h, _v))
     _fx([169, 170], sig=2)
     _fx([171, 172], hb=0.05)
     _fx([173], hb=0.05)
@@ -209,6 +220,20 @@ else:
     _fx([314, 315], sig=3)
 
 BLUR_KEYS = ("hb", "vb", "sig", "zb")
+TRANS_FILE = os.path.join(HERE, f"trans_{EDIT}.json")
+TRANS, TRANS_SCENE = {}, {}
+# Von Hand am Vorbild-Bild gesetzt, wo die Messung unsicher ist (sehr dunkle Ausblend-Bilder, Spalt-Bild)
+TRANS_OVERRIDE = {
+    "felix": {151: (8, 24), 248: (2, 2), 249: (4, 4), 250: (7, 7), 251: (10, 10), 314: (3, 3), 315: (6, 6)},
+    "hyunjin": {49: (0, 2), 221: (3, 12)},
+}
+if os.path.exists(TRANS_FILE) and not os.environ.get("NO_TRANS"):
+    _t = json.load(open(TRANS_FILE))
+    TRANS = {int(k): v for k, v in _t["frames"].items()}
+    TRANS_SCENE = {int(k): v for k, v in _t["scenes"].items()}
+    for _f, (_sx, _sy) in TRANS_OVERRIDE.get(EDIT, {}).items():
+        if _f in TRANS:
+            TRANS[_f]["sx"], TRANS[_f]["sy"] = _sx, _sy
 CAL_FILE = os.path.join(HERE, f"fx_cal_{EDIT}.json")
 if os.path.exists(CAL_FILE) and not os.environ.get("NO_CAL"):
     for _k, _v in json.load(open(CAL_FILE)).items():
@@ -452,6 +477,19 @@ def shot_stats(i):
     return d["lab"]
 
 
+RED_PULL = 0.5 if EDIT == "hyunjin" else 0.0     # Vorbild 7a ist durchgehend rot: Farbtoene Richtung Rot ziehen
+
+
+def hue_to_red(img, k):
+    """Farbtoene Richtung Rot ziehen (lila/magenta und orange werden roter), nur bei farbigen Pixeln"""
+    hsv = cv2.cvtColor(np.clip(img, 0, 255).astype(np.uint8), cv2.COLOR_RGB2HSV_FULL)
+    h = hsv[..., 0].astype(np.float32)
+    dh = np.where(h > 128, h - 256, h)
+    w = np.clip(hsv[..., 1].astype(np.float32) / 80.0, 0, 1)
+    hsv[..., 0] = np.mod(np.round(dh * (1 - k * w)), 256).astype(np.uint8)
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB_FULL).astype(np.float32)
+
+
 def grade(img, i):
     img = base_look(img)
     ms, ss = shot_stats(i)
@@ -459,7 +497,8 @@ def grade(img, i):
     ratio = 1 + (np.clip(st / ss, 0.4, 1.5) - 1) * STD_STRENGTH
     m_eff = ms + (mt - ms) * MEAN_STRENGTH
     lab = m_eff + (_lab(img) - ms) * ratio
-    return np.clip(cv2.cvtColor(lab.astype(np.float32), cv2.COLOR_LAB2RGB), 0, 1) * 255.0
+    out = np.clip(cv2.cvtColor(lab.astype(np.float32), cv2.COLOR_LAB2RGB), 0, 1) * 255.0
+    return hue_to_red(out, RED_PULL) if RED_PULL > 0 else out
 
 
 # Helligkeit Bild fuer Bild wie im Vorbild (Verlauf innerhalb der Szene, Blitze, Abdunkeln vor dem Schnitt)
@@ -476,9 +515,10 @@ def ref_lum(f):
         m = ref_mask(sw, shh)
         raw = np.array([_lab(cv2.resize(x, (sw, shh), interpolation=cv2.INTER_AREA))[..., 0][m].mean() for x in ra])
         srcl = raw.copy()
-        for fl in FLASH:                                   # Weissblitze nicht in die Nachbarbilder verschmieren
-            if 0 < fl < len(srcl):
-                srcl[fl] = srcl[fl - 1]
+        bad = [f for f in list(FLASH) + list(TRANS) if 0 < f < len(srcl)]
+        good = np.array([f for f in range(len(srcl)) if f not in set(bad)])
+        if len(good) > 1 and bad:                          # Blitze/Uebergaenge nicht in die Nachbarbilder verschmieren
+            srcl[bad] = np.interp(bad, good, raw[good])
         REF_LUM = raw.copy()
         for i in range(len(CUTS)):
             a, b = CUTS[i], min(seg_end(i), len(raw))
@@ -639,6 +679,104 @@ def glitch(img, k):
     return out
 
 
+def echo(img, a, s, cy):
+    """Geisterbild: um das Gesicht vergroesserte Kopie, halb durchsichtig darueber"""
+    h, w = img.shape[:2]
+    py = (h - H) / 2 + cy * H
+    M = np.array([[s, 0, (1 - s) * (w - 1) / 2], [0, s, (1 - s) * py]], np.float32)
+    z = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
+    return img * (1 - a) + z * a
+
+
+def ripple(img, amp, lam):
+    """fluessige Wellen: waagerechte Linien werden wellig (senkrechte Verschiebung je Spalte)"""
+    xs = np.arange(W, dtype=np.float32)[None, :] / W
+    dy = amp * H * (np.sin(2 * np.pi * xs / lam) + 0.5 * np.sin(2 * np.pi * xs / (0.43 * lam) + 1.3))
+    mapy = (np.arange(H, dtype=np.float32)[:, None] + dy).astype(np.float32)
+    mapx = np.repeat(np.arange(W, dtype=np.float32)[None, :], H, axis=0)
+    return cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
+
+
+def flare(img, y0, k):
+    """waagerechter Lichtstreifen mit zwei hellen Punkten (Vorbild 7a, Bild 183)"""
+    yy = np.arange(H, dtype=np.float32)[:, None] / H
+    xx = np.arange(W, dtype=np.float32)[None, :] / W
+    line = np.exp(-0.5 * ((yy - y0) / 0.008) ** 2) * (0.55 + 0.45 * np.exp(-0.5 * ((xx - 0.5) / 0.3) ** 2))
+    spots = sum(np.exp(-0.5 * (((xx - x0) / 0.05) ** 2 + ((yy - y0) / 0.03) ** 2)) for x0 in (0.32, 0.62))
+    glow = 0.25 * np.exp(-0.5 * ((yy - y0) / 0.06) ** 2)
+    add = np.clip(line + 0.8 * spots + glow, 0, 1.5) * k * 255.0
+    return img + add[..., None] * np.array([1.0, 0.92, 0.95], np.float32)
+
+
+def split(img, hgt, val, c=0.5):
+    """geteilte Einblendung: Bild in der Mitte auseinandergeschoben, Spalt mit Grau gefuellt (Vorbild 7b, 151-159)"""
+    gap = int(round(hgt * H))
+    if gap < 1:
+        return img
+    g1, g2, yc = gap // 2, gap - gap // 2, int(round(c * H))
+    out = np.empty_like(img)
+    out[:yc - g1] = img[g1:yc]
+    out[yc - g1:yc + g2] = float(val)
+    out[yc + g2:] = img[yc:H - g2]
+    return out
+
+
+def aniso(img, sx, sy):
+    """weiche Unschaerfe, waagerecht sx / senkrecht sy (px bei 576) - Gauss statt Kasten: keine Doppelbilder"""
+    out = img
+    one = np.ones((1, 1), np.float32)
+    if sx > 0.25:
+        s_ = sx * K
+        k = cv2.getGaussianKernel(int(2 * math.ceil(3 * s_) + 1), s_).astype(np.float32)
+        out = cv2.sepFilter2D(out, -1, k, one, borderType=cv2.BORDER_REFLECT)
+    if sy > 0.25:
+        s_ = sy * K
+        k = cv2.getGaussianKernel(int(2 * math.ceil(3 * s_) + 1), s_).astype(np.float32)
+        out = cv2.sepFilter2D(out, -1, one, k, borderType=cv2.BORDER_REFLECT)
+    return out
+
+
+_LMASK = None
+
+
+def lab_stats(img):
+    """mittlere Helligkeit, Kontrast (Streuung L) und Farbigkeit (mittlere Chroma), ohne Overlay-Bereiche"""
+    global _LMASK
+    if _LMASK is None:
+        _LMASK = ref_mask(128, 128)
+    x = cv2.resize(np.clip(img, 0, 255).astype(np.float32), (128, 128), interpolation=cv2.INTER_AREA) / 255.0
+    lab = cv2.cvtColor(x, cv2.COLOR_RGB2LAB)
+    L = lab[..., 0][_LMASK]
+    c = np.hypot(lab[..., 1], lab[..., 2])[_LMASK]
+    return float(L.mean()), float(L.std()) + 1e-3, float(c.mean()) + 1e-3
+
+
+def apply_levels(img, m_t, s_t, c_t):
+    m_c, s_c, c_c = lab_stats(img)
+    lab = cv2.cvtColor(np.clip(img, 0, 255).astype(np.float32) / 255.0, cv2.COLOR_RGB2LAB)
+    lab[..., 0] = (lab[..., 0] - m_c) * float(np.clip(s_t / s_c, 0.25, 4.0)) + m_t
+    lab[..., 1:] *= float(np.clip(c_t / c_c, 0.0, 4.0))
+    return np.clip(cv2.cvtColor(lab, cv2.COLOR_LAB2RGB), 0, 1) * 255.0
+
+
+NONBLUR_DROP = BLUR_KEYS + ("gain", "white", "split", "flare")
+
+
+def trans_frame(i, f):
+    """Uebergangsbild mit gemessenen Werten: Effekte -> weiche Unschaerfe -> Licht -> Helligkeit/Kontrast/Farbe -> Spalt"""
+    spec = FX.get(f, {})
+    t = TRANS[f]
+    sc = TRANS_SCENE[i]
+    img = layer(i, f, {k: v for k, v in spec.items() if k not in NONBLUR_DROP})
+    img = aniso(img, t["sx"], t["sy"])
+    img = apply_levels(img, sc["m"] + t["dm"], sc["s"] * t["rs"], sc["c"] * t["rc"])
+    if spec.get("flare"):
+        img = flare(img, *spec["flare"])
+    if spec.get("split"):
+        img = split(img, *spec["split"])
+    return img
+
+
 def wave(img, amp, period, phase):
     """rote Wellen-Verzerrung (Vorbild 7a, 237-238): jede Zeile im Zickzack waagerecht verschoben"""
     yy = np.arange(H, dtype=np.float32)[:, None] / H / period + phase
@@ -667,6 +805,10 @@ def apply_fx(img, i, spec):
         img = hourglass(img, *spec["hg"])
     if spec.get("wave"):
         img = wave(img, *spec["wave"])
+    if spec.get("ripple"):
+        img = ripple(img, *spec["ripple"])
+    if spec.get("echo"):
+        img = echo(img, *spec["echo"], PLAN[i]["face"][0])
     if spec.get("hb"):
         img = hblur(img, spec["hb"])
     if spec.get("vb"):
@@ -735,8 +877,11 @@ def render(f):
         out = np.full((H, W, 3), int(round(255 * FLASH[f])), np.uint8)
     else:
         i = seg_of(f)
-        img = layer(i, f, FX.get(f, {}))
-        out = np.clip(finish(match_lum(img, f)), 0, 255).astype(np.uint8)
+        if f in TRANS:
+            out = np.clip(finish(trans_frame(i, f)), 0, 255).astype(np.uint8)
+        else:
+            img = layer(i, f, FX.get(f, {}))
+            out = np.clip(finish(match_lum(img, f)), 0, 255).astype(np.uint8)
     if REP and REP[0] <= f < REP[0] + (REP[2] - REP[1]):
         RENDERED[f] = out
     return out

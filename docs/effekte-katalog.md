@@ -310,6 +310,44 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * **Selfie-Nahaufnahmen** (z. B. Kappe H4a) passen nicht in halbnahe Szenen: Der Ausschnitt kann nicht weiter werden als die Quelle, dann sind die Augen abgeschnitten. Lieber Bühnen- oder Halbtotal-Aufnahmen nehmen.
   * Messwerte: Unschärfe-Verlauf 0,97, Helligkeit 0,98, Härte am Schnitt 80 (Vorbild 75).
 
+## Vorbild 7 – Übergänge v2 (Feedback „noch nicht so flüssig wie im Beispiel“)
+
+**Ursachen**, durch den direkten Vergleich jedes Schnitts gefunden (Vorbild oben, Edit unten, Bilder c−3 … c+4):
+
+1. **Starke Unschärfe war zu schwach.** Die alte Messung (nur feinste Detail-Stufe) hielt das Kompressionsrauschen des Vorbilds für Schärfe.
+2. **Kasten-Wischunschärfe** (hb/vb) erzeugt sichtbare Doppelbilder. Im Vorbild sind die Wische weich.
+3. **Einzelbild-Abdunklungen und -Aufhellungen wurden weggeglättet**, weil die Helligkeitskurve geglättet wurde.
+4. **Spezial-Übergänge fehlten:**
+   * geteilte Einblendung (7b, 151–159)
+   * Geisterbild-Echo (7a, 145–148 u. a.)
+   * Lichtstreifen (7a, 183)
+   * flüssige Wellen (7a, 250–252)
+5. **Farbsprünge:** Das Vorbild ist durchgehend rot, unsere Bühnen-Clips waren lila.
+
+**Lösung (`projects/vorbild7/trans.py` + `trans_frame` im Renderer):**
+
+* **Jedes Übergangsbild einzeln vermessen** (Schnitt −3 … +5 und alle Effekt-Bilder):
+  * Detail-Energie in 4 Frequenzbändern (DoG 0,7–11,2 px bei 288 px), getrennt waagerecht/senkrecht, relativ zur ruhigen Szene.
+  * Das eigene Bild vorher auf den Ziel-Kontrast bringen.
+  * Verhältnisse unter 3 % zählen nicht (Rauschboden), grobe Bänder zählen mehr.
+  * Ergebnis: weiche Gauß-Unschärfe **σx/σy** (Gittersuche).
+* **Helligkeit, Kontrast und Farbigkeit je Bild exakt** wie das Vorbild-Bild (Lab: Mittel L, Streuung L, mittlere Chroma, relativ zur Szene). Die Glättung der Helligkeitskurve überspringt Übergangsbilder.
+* Bei sehr dunklen Ausblend-Bildern misst das Verfahren unsicher (Rest > 2) → Werte von Hand am Bild setzen (`TRANS_OVERRIDE`).
+* **Geteilte Einblendung:** Das Bild wird in der Mitte auseinandergeschoben, der Spalt grau gefüllt. Höhe 0,345 → 0,194 → 0,139 → 0,102 → 0,073 → 0,054 → 0,036 → 0,012 → 0,005, Grau 152 → 30 (gemessen über flache Zeilen).
+* **Echo:** um das Gesicht vergrößerte Kopie (1,1–1,28×), 10–45 % deckend.
+* **Lichtstreifen:** dünne helle Linie mit zwei Lichtpunkten auf Augenhöhe.
+* **Wellen:** senkrechte Verschiebung je Spalte, Sinus mit Oberwelle, Amplitude 1,5–3,5 % der Höhe.
+* **Zickzack:** Ausschlag nur ~5 % der Breite. Mit 10 % war die Figur nicht mehr zu erkennen.
+* **Hyunjin-Look:** Farbtöne zu 50 % Richtung Rot gezogen (nur farbige Pixel), wie das durchgehend rote Vorbild.
+
+**Messwerte Felix:**
+
+| | Vorbild | vorher | jetzt |
+|---|---|---|---|
+| Härte am Schnitt | 43,4 | 51,3 | 42,6 |
+| Abweichung des Bildänderungs-Verlaufs | – | 10,9 | 8,2 |
+| Schärfe-Verlauf (Korrelation mit Vorbild) | – | 0,84 | 0,93 |
+
 # Referenz 7b: Michael-Jackson-Intro, mit Felix umgesetzt in `projects/vorbild7` (EDIT=felix)
 
 576×576, 30 fps.
