@@ -50,7 +50,7 @@ def _fx(frames, **kw):
 if EDIT == "hyunjin":
     REF = os.path.join(FELIX, "media", "reference_rot.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(SKZ, "media"))
-    OUT = os.path.join(OUTDIR, "Hyunjin_Rot_Edit_v2.mp4")
+    OUT = os.path.join(OUTDIR, "Hyunjin_Rot_Edit_v3.mp4")
     SCENES = {
         "concert":    ("hyunjin_06.mov", 0.00, 5.00, "crop=990:990:560:0", "stage"),     # H6a Fancam (eine Person)
         "concert_mic": ("hyunjin_06.mov", 10.20, 11.96, "crop=990:990:560:0", "stage"),   # H6b singt
@@ -89,7 +89,7 @@ if EDIT == "hyunjin":
         dict(scene="concert",     t=3.00,  face=(0.28, 0.18)),             # S7
         dict(scene="hood",        t=4.20,  face=(0.30, 0.24)),             # S8 Nahaufnahme, Haende
         dict(scene="vlog",        t=2.20,  face=(0.30, 0.18)),             # S9
-        dict(scene="cap",         t=2.85,  face=(0.30, 0.20)),             # S10 Hut -> Kappe, Blick in die Kamera
+        dict(scene="stage_look",  t=2.10,  face=(0.30, 0.20)),             # S10 Buehne, Handschuh, Blick in die Kamera
         dict(scene="heart",       t=6.80,  face=(0.26, 0.16)),             # S11 hell
         dict(scene="hoodie",      t=11.70, face=(0.22, 0.18)),             # S12
         dict(scene="mirror",      t=2.00,  face=(0.30, 0.20)),             # S13

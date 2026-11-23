@@ -292,6 +292,23 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Kamera:** durchgehender Zoom hinein (~1,1–1,4 % pro Bild), vor dem Schnitt schneller (bis +3,7 %).
 * **Tempo:** normal, keine Zeitlupe. Bewegung im Vorbild 6–10, Intro mit Lichtgeflacker.
 * **Gesichter:** halbnah, Gesicht bei y ≈ 0,30, Größe ≈ 0,15–0,24.
+* **Hyunjin-Szenen** (v3):
+  * Intro: Konzert-Fancam, ein Clip
+  * 1: Bühne
+  * 2: grüne Weste
+  * 3: Brille
+  * 4: Konzert mit Mikro
+  * 5: Bühne ruhig
+  * 6: Fotoshooting in S/W
+  * 7: Konzert
+  * 8: Kapuze mit Händen
+  * 9: Vlog
+  * 10: Bühne mit Handschuh
+  * 11: Herz-Hände
+  * 12: graue Kapuzenjacke
+  * 13: Spiegel-Selfie
+  * **Selfie-Nahaufnahmen** (z. B. Kappe H4a) passen nicht in halbnahe Szenen: Der Ausschnitt kann nicht weiter werden als die Quelle, dann sind die Augen abgeschnitten. Lieber Bühnen- oder Halbtotal-Aufnahmen nehmen.
+  * Messwerte: Unschärfe-Verlauf 0,97, Helligkeit 0,98, Härte am Schnitt 80 (Vorbild 75).
 
 # Referenz 7b: Michael-Jackson-Intro, mit Felix umgesetzt in `projects/vorbild7` (EDIT=felix)
 
@@ -313,3 +330,11 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Umsetzung: Kamerakurve des Vorbilds mit Dämpfung 0,9.
 * **Ende:** 480 weiß, blendet bis 507 ins Schwarze (Grauwerte wie im Vorbild).
 * **Tempo:** normal (Bewegung im Vorbild 6,7–8,6).
+* **Felix-Szenen:**
+  * C1: lacht, rote Haare
+  * C2: Anzug, Hand am Mund (wie MJ mit Handschuh)
+  * C3: Ziegelwand, lacht
+  * C4: Bühne, Drehung
+  * C5: Fotoshooting
+  * C6: Bühne, Arm hoch
+  * Messwerte: Unschärfe 0,91, Helligkeit 0,94, Härte 53 (Vorbild 46), Ruckeln 9 (Vorbild 10). Das Intro weicht im Mittel 2,4 Graustufen ab (nur die entfernten Zeichen).
