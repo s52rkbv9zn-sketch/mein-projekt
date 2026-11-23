@@ -348,6 +348,11 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 | Abweichung des Bildänderungs-Verlaufs | – | 10,9 | 8,2 |
 | Schärfe-Verlauf (Korrelation mit Vorbild) | – | 0,84 | 0,93 |
 
+**Messwerte Hyunjin (v5):**
+* Abweichung des Bildänderungs-Verlaufs an den Schnitten: 6,8 → 4,5.
+* Herz-Hände-Szene ruhiger (Bildänderung 27 → 11–16 je Bild).
+* Verbleibende „ungleichmäßige Stellen“ liegen in Übergangs-Abdunklungen oder in ruhigen Vlog-Momenten (24-fps-Quelle), nicht in echten Rucklern.
+
 # Referenz 7b: Michael-Jackson-Intro, mit Felix umgesetzt in `projects/vorbild7` (EDIT=felix)
 
 576×576, 30 fps.
