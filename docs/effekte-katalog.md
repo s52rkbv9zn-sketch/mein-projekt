@@ -381,3 +381,46 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * C5: Fotoshooting
   * C6: Bühne, Arm hoch
   * Messwerte: Unschärfe 0,91, Helligkeit 0,94, Härte 53 (Vorbild 46), Ruckeln 9 (Vorbild 10). Das Intro weicht im Mittel 2,4 Graustufen ab (nur die entfernten Zeichen).
+
+---
+
+# Referenz 8: „Spam my phone if … is your bias“ (Trend-Video), mit Hyunjin in `projects/vorbild7` (EDIT=spam)
+
+576×576, 30 fps.
+
+* **Länge:** Edit bis Bild 537 (17,93 s), danach TikTok-Abspann. Die Musik klingt bei 17,76 s aus, der Abspann-Ton beginnt bei 17,94 s.
+* **Aufbau:** 11 Szenen, **harte Schnitte** bei 55, 82, 104, 155, 219, 271, 320, 366, 429, 457.
+* **Keine eigenen Effekte:** keine Zooms, keine Unschärfe, normales Tempo. Die Zoom-Werte in einzelnen Szenen (Selfies) kommen aus den Original-Clips.
+* **Text** „Spam my phone if Bangchan is your bias“ (weiß, schwarze Kontur, Mitte unten) auf Wunsch weggelassen. Falls später gewünscht: „Spam my phone if Hyunjin is your bias“ im TikTok-Stil (Regel 1).
+* **Umsetzung:**
+  * Gesichtsgrößen je Szene wie im Vorbild, Nahaufnahmen etwas weiter (Qualität).
+  * Natürliche Farben (`PLAIN`): nur sanfter CC-Filter, keine Angleichung an die Farben einer anderen Person.
+* **Szenen:**
+  * 1: grüne Weste
+  * 2: Spiegel-Selfie
+  * 3: grüne Weste mit Kamera
+  * 4: Selfie mit Kappe
+  * 5: Vlog
+  * 6: Bühne mit Handschuh
+  * 7: Herz-Hände
+  * 8: Fotoshooting
+  * 9: Bühne ruhig
+  * 10: Brille
+  * 11: Kapuze mit Händen
+* **Achtung, Szenen-Grenzen der Quellen:**
+  * Wenn eine Szene über eine Schnittstelle im Original-Clip hinausläuft, entsteht ein Doppelbild (Zwischenbild-Berechnung über den Schnitt).
+  * Auch Überblendungen im Original selbst gibt es: H3b ab 8,37 s.
+  * Deshalb Start + Länge × Tempo immer innerhalb der Szene halten, notfalls Tempo 0,92–0,98.
+
+## Referenz 7b mit Felix im Intro (Wunsch: „Anfang gleich lassen, aber mit Felix“)
+
+* **Intro 0–150 nachgebaut:** EIN Felix-Clip (Anzug mit Brille, `suit` ab 0,95 s) in Schwarz-Weiß.
+* **Läuft und friert ein wie im Vorbild:**
+  * Bewegung in 1–19, 39–54, 73–90, 109–118, 130–140
+  * am Ende langsam anlaufend 145–150
+  * dazwischen Standbild
+* **Lade-Punkte** (rot 254,44,85 / türkis 37,244,238, Radius 0,014 × Breite, Mitte, tauschen alle 18 Bilder die Seite) während der Standbilder.
+* **Schwarzer Balken oben:** 144–150 wächst von 0,2 % auf 12,5 % der Höhe.
+* **S/W-Tonkurve:** Gesicht → L 48, Lichter → 64–68 (grau wie die Wand im Vorbild), Schatten fast schwarz.
+  * Lehre: Histogramm-Angleichung an das Vorbild machte große helle Flächen flach grau (Straße hinter Felix).
+* **Szene C2** jetzt Bärenmütze, weil der Anzug schon im Intro ist.

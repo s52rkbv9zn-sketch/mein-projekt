@@ -47,33 +47,39 @@ def _fx(frames, **kw):
         FX.setdefault(f, {}).update(kw)
 
 
+# Hyunjin-Szenen (projects/skz-material, Kennungen im Manifest), fuer EDIT=hyunjin und EDIT=spam
+HJ_SCENES = {
+    "concert":    ("hyunjin_06.mov", 0.00, 5.00, "crop=990:990:560:0", "stage"),     # H6a Fancam (eine Person)
+    "concert_mic": ("hyunjin_06.mov", 10.20, 11.96, "crop=990:990:560:0", "stage"),   # H6b singt
+    "stage_look": ("hyunjin_03.mov", 0.00, 6.08, "crop=1180:1180:458:0", "stage"),   # H3a Buehne
+    "stage_calm": ("hyunjin_03.mov", 6.08, 10.37, "crop=1180:1180:458:0", "stage"),  # H3b ruhiger Moment
+    "green_pose": ("hyunjin_04.mov", 8.50, 10.37, "crop=1020:1020:800:0", "bright"),  # H4d gruene Weste
+    "glasses":    ("hyunjin_05.mov", 0.00, 1.52, "crop=1090:1090:250:0", "bright"),   # H5a Brille (vor Sticker)
+    "crest":      ("hyunjin_05.mov", 10.18, 11.66, "crop=1060:1060:700:90", "cool"),  # H5c Fotoshooting
+    "hood":       ("hyunjin_04.mov", 3.90, 7.06, "crop=1180:1180:300:0", "cool"),     # H4b Kapuze, Haende
+    "vlog":       ("hyunjin_02.mov", 0.00, 8.54, "crop=1000:1000:560:0", "warm"),     # H2a schwarze Weste
+    "cap":        ("hyunjin_04.mov", 0.00, 3.90, "crop=1180:1180:300:0", "cool"),     # H4a Kapuze + Kappe
+    "heart":      ("hyunjin_05.mov", 4.03, 10.18, "crop=1000:1000:500:0", "bright"),  # H5b Herz-Haende
+    "hoodie":     ("hyunjin_04.mov", 11.55, 12.86, "crop=1000:1000:550:0", "cool"),   # H4f graue Kapuzenjacke
+    "mirror":     ("hyunjin_01.mov", 0.00, 5.53, "crop=1180:1180:460:0", "warm"),     # H1 Spiegel-Selfie
+    "green_cam":  ("hyunjin_04.mov", 10.37, 11.55, "crop=1020:1020:800:0", "bright"), # H4e gruene Weste, Kamera vorne
+}
+HJ_SAFE = {
+    "concert": (214, 0, 1881, 990), "concert_mic": (360, 0, 1735, 990), "stage_look": (240, 0, 1750, 1180),
+    "stage_calm": (240, 0, 1750, 1180), "green_pose": (0, 0, 2096, 1020), "glasses": (0, 0, 1340, 1090),
+    "crest": (40, 90, 2056, 1150), "hood": (0, 0, 1800, 1180), "vlog": (0, 0, 1920, 1000),
+    "cap": (0, 0, 1800, 960), "heart": (0, 0, 1920, 1000), "hoodie": (0, 0, 2096, 1180),
+    "mirror": (116, 0, 1978, 1180), "green_cam": (0, 0, 2096, 1020),
+}
+
+
 if EDIT == "hyunjin":
     REF = os.path.join(FELIX, "media", "reference_rot.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(SKZ, "media"))
     OUT = os.path.join(OUTDIR, "Hyunjin_Rot_Edit_v5.mp4")
-    SCENES = {
-        "concert":    ("hyunjin_06.mov", 0.00, 5.00, "crop=990:990:560:0", "stage"),     # H6a Fancam (eine Person)
-        "concert_mic": ("hyunjin_06.mov", 10.20, 11.96, "crop=990:990:560:0", "stage"),   # H6b singt
-        "stage_look": ("hyunjin_03.mov", 0.00, 6.08, "crop=1180:1180:458:0", "stage"),   # H3a Buehne
-        "stage_calm": ("hyunjin_03.mov", 6.08, 10.37, "crop=1180:1180:458:0", "stage"),  # H3b ruhiger Moment
-        "green_pose": ("hyunjin_04.mov", 8.50, 10.37, "crop=1020:1020:800:0", "bright"),  # H4d gruene Weste
-        "glasses":    ("hyunjin_05.mov", 0.00, 1.52, "crop=1090:1090:250:0", "bright"),   # H5a Brille (vor Sticker)
-        "crest":      ("hyunjin_05.mov", 10.18, 11.66, "crop=1060:1060:700:90", "cool"),  # H5c Fotoshooting
-        "hood":       ("hyunjin_04.mov", 3.90, 7.06, "crop=1180:1180:300:0", "cool"),     # H4b Kapuze, Haende
-        "vlog":       ("hyunjin_02.mov", 0.00, 8.54, "crop=1000:1000:560:0", "warm"),     # H2a schwarze Weste
-        "cap":        ("hyunjin_04.mov", 0.00, 3.90, "crop=1180:1180:300:0", "cool"),     # H4a Kapuze + Kappe
-        "heart":      ("hyunjin_05.mov", 4.03, 10.18, "crop=1000:1000:500:0", "bright"),  # H5b Herz-Haende
-        "hoodie":     ("hyunjin_04.mov", 11.55, 12.86, "crop=1000:1000:550:0", "cool"),   # H4f graue Kapuzenjacke
-        "mirror":     ("hyunjin_01.mov", 0.00, 5.53, "crop=1180:1180:460:0", "warm"),     # H1 Spiegel-Selfie
-    }
+    SCENES = HJ_SCENES
     SAFE = {}
-    SAFE_SCENE = {
-        "concert": (214, 0, 1881, 990), "concert_mic": (360, 0, 1735, 990), "stage_look": (240, 0, 1750, 1180),
-        "stage_calm": (240, 0, 1750, 1180), "green_pose": (0, 0, 2096, 1020), "glasses": (0, 0, 1340, 1090),
-        "crest": (40, 90, 2056, 1150), "hood": (0, 0, 1800, 1180), "vlog": (0, 0, 1920, 1000),
-        "cap": (0, 0, 1800, 960), "heart": (0, 0, 1920, 1000), "hoodie": (0, 0, 2096, 1180),
-        "mirror": (116, 0, 1978, 1180),
-    }
+    SAFE_SCENE = HJ_SAFE
     PATCHES = {}
     INTRO_END = 0
     CUTS = [0, 145, 170, 184, 209, 221, 231, 237, 249, 275, 287, 315, 328, 336]
@@ -150,11 +156,44 @@ if EDIT == "hyunjin":
     _fx(range(336, 339), sig=2)
     _fx([353, 354], sig=2)
     _fx([355], hb=0.08)
+elif EDIT == "spam":
+    # Referenz 8 ("Spam my phone if ... is your bias"): 11 Szenen, harte Schnitte, keine eigenen Effekte,
+    # normales Tempo, natuerliche Farben. Text des Vorbilds weggelassen (Wunsch des Nutzers).
+    REF = os.path.join(FELIX, "media", "reference_spam.mp4")
+    MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(SKZ, "media"))
+    OUT = os.path.join(OUTDIR, "Hyunjin_Spam_Edit_v2.mp4")
+    SCENES = HJ_SCENES
+    SAFE = {}
+    SAFE_SCENE = HJ_SAFE
+    PATCHES = {}
+    INTRO_END = 0
+    CUTS = [0, 55, 82, 104, 155, 219, 271, 320, 366, 429, 457]
+    FIRST_END = 538
+    PLAN = [   # face = (Gesicht senkrecht, Gesichtshoehe) - nach dem Vorbild, Nahaufnahmen etwas weiter (Qualitaet)
+        dict(scene="green_pose", t=8.52,  speed=0.98, face=(0.32, 0.25)),   # 1  laechelt, hell (Vorbild: filmt im Park)
+        dict(scene="mirror",     t=2.00,  face=(0.34, 0.28)),   # 2  Spiegel-Selfie (Vorbild: lacht am Tisch)
+        dict(scene="green_cam",  t=10.45, face=(0.35, 0.22)),   # 3  hinter der Kamera (Vorbild: Kamera hoch)
+        dict(scene="cap",        t=2.20,  face=(0.46, 0.34)),   # 4  Selfie mit Kappe (ganze Kappe sichtbar)
+        dict(scene="vlog",       t=2.20,  face=(0.42, 0.50)),   # 5  Nahaufnahme (Vorbild: Nahaufnahme)
+        dict(scene="stage_look", t=2.10,  face=(0.33, 0.35)),   # 6  Blick in die Kamera
+        dict(scene="heart",      t=8.45,  face=(0.37, 0.24)),   # 7  Herz-Haende (Vorbild: lacht)
+        dict(scene="crest",      t=10.24, speed=0.92, face=(0.40, 0.40)),   # 8  Fotoshooting, nah
+        dict(scene="stage_calm", t=6.18,  face=(0.30, 0.26)),   # 9  Buehne, Blick in die Kamera (endet vor der Ueberblendung bei 8,37 s)
+        dict(scene="glasses",    t=0.40,  face=(0.30, 0.33)),   # 10 Brille
+        dict(scene="hood",       t=4.20,  face=(0.42, 0.50)),   # 11 Kapuze, Haende am Gesicht (Schluss)
+    ]
+    FLASH = {}
+    REP = None
+    END_EDIT, NF = 538, 538          # ab 538 TikTok-Abspann im Vorbild (Musik endet bei 17,76 s)
+    END_MODE = "black"
+    DAMP_Z, DAMP_R, ZMAX, RMAX = 0.0, 0.0, 1.0, 0.0    # keine eigene Kamerabewegung (Vorbild: nur harte Schnitte)
+    OVERLAYS = [(0, 0, 130, 105), (455, 488, 576, 576), (140, 430, 436, 525)]   # TikTok-Zeichen, Text "Spam my phone"
+    PLAIN = True                     # Trend-Video: keine Farb-/Helligkeitsangleichung an andere Personen
 else:
     from scenes import SCENES
     REF = os.path.join(FELIX, "media", "reference_mj.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
-    OUT = os.path.join(OUTDIR, "Felix_MJ_Edit_v2.mp4")
+    OUT = os.path.join(OUTDIR, "Felix_MJ_Edit_v3.mp4")
     SAFE = {
         "clip2.mov": (220, 80, 1950, 1000), "clip3.mov": (520, 0, 2096, 1180), "clip4.mov": (0, 0, 2096, 900),
         "clip5.mov": (0, 80, 1180, 1950), "clip6.mov": (290, 0, 2096, 1080), "clip7.mov": (290, 0, 2096, 1180),
@@ -163,12 +202,20 @@ else:
     }
     SAFE_SCENE = {"selfie": (150, 0, 1945, 1180)}
     PATCHES = {"clip5.mov": [(64, 926, 162, 1170)]}
-    INTRO_END = 151                  # 0-150: Michael-Jackson-Intro aus dem Vorbild (unveraendert)
+    INTRO_END = 151                  # 0-150: Intro wie im Vorbild, aber mit Felix (Wunsch des Nutzers)
+    # Vorbild-Intro: EIN Clip in Schwarz-Weiss, laeuft und friert auf den Schlaegen ein ("Video laedt"),
+    # waehrend des Einfrierens die roten/tuerkisen Lade-Punkte in der Mitte (gemessen)
+    INTRO_CLIP = dict(scene="suit", t0=0.95, face=(0.38, 0.34))
+    INTRO_RUNS = [(1, 19), (39, 54), (73, 90), (109, 118), (130, 140)]     # Bilder mit Bewegung
+    INTRO_RAMP = {145: 0.15, 146: 0.30, 147: 0.35, 148: 0.40, 149: 0.65, 150: 1.0}
+    INTRO_DOTS = [(19, 38), (55, 72), (90, 108), (119, 129), (141, 150)]   # Lade-Punkte sichtbar
+    INTRO_BAR = {144: .002, 145: .007, 146: .014, 147: .024, 148: .036, 149: .043, 150: .125}
+    INTRO_TONE = (32.4, 20.0)        # Lab-Helligkeit Mittel/Streuung des Vorbild-Intros
     CUTS = [151, 173, 191, 234, 252, 271]
     FIRST_END = 316
     PLAN = [
         dict(scene="red_laugh", t=7.80,  face=(0.30, 0.40)),               # C1 laechelt (Nahaufnahme)
-        dict(scene="suit",      t=2.30,  face=(0.28, 0.28)),               # C2 Hand am Mund
+        dict(scene="bear",      t=0.30,  face=(0.30, 0.30)),               # C2 laechelt (Anzug ist jetzt im Intro)
         dict(scene="brick",     t=12.60, face=(0.40, 0.38)),               # C3 laechelt, Zoom-Pulse
         dict(scene="stg_flip",  t=3.30,  speed=0.85, face=(0.28, 0.20)),   # C4 Tanz / Drehung
         dict(scene="shoot_sit", t=4.40,  face=(0.28, 0.22)),               # C5 steht, ernst
@@ -219,6 +266,8 @@ else:
     _fx([305], sig=2)
     _fx([314, 315], sig=3)
 
+INTRO_CLIP = globals().get("INTRO_CLIP")
+PLAIN = globals().get("PLAIN", False)
 BLUR_KEYS = ("hb", "vb", "sig", "zb")
 TRANS_FILE = os.path.join(HERE, f"trans_{EDIT}.json")
 TRANS, TRANS_SCENE = {}, {}
@@ -492,6 +541,8 @@ def hue_to_red(img, k):
 
 def grade(img, i):
     img = base_look(img)
+    if PLAIN:                                         # natuerliche Farben (nur sanfter CC-Filter)
+        return img
     ms, ss = shot_stats(i)
     mt, st = ref_stats(i)
     ratio = 1 + (np.clip(st / ss, 0.4, 1.5) - 1) * STD_STRENGTH
@@ -838,8 +889,9 @@ REF_FULL = None
 
 
 def intro_frame(f):
-    """Michael-Jackson-Intro: Bild f des Vorbilds, nur TikTok-Zeichen/Name und die blinkenden Punkte in der Mitte
-    weggerechnet, dann hochskaliert (Lanczos + leichtes Nachschaerfen)."""
+    """Intro: mit INTRO_CLIP (Felix) nachgebaut, sonst Bild f des Vorbilds (TikTok-Zeichen weggerechnet)"""
+    if INTRO_CLIP:
+        return felix_intro(f)
     ra = ref_frames()
     img = ra[f].copy()
     mask = np.zeros((REF_H, REF_W), np.uint8)
@@ -854,6 +906,120 @@ def intro_frame(f):
     big = cv2.resize(img, (W, H), interpolation=cv2.INTER_LANCZOS4).astype(np.float32)
     big = big + 0.35 * (big - cv2.GaussianBlur(big, (0, 0), 1.6))
     return np.clip(big, 0, 255).astype(np.uint8)
+
+
+INTRO_DATA = {}
+
+
+def intro_speed(f):
+    if f in INTRO_RAMP:
+        return INTRO_RAMP[f]
+    return 1.0 if any(a <= f <= b for a, b in INTRO_RUNS) else 0.0
+
+
+def intro_times():
+    ts, t = [], INTRO_CLIP["t0"]
+    for f in range(INTRO_END):
+        t += intro_speed(f) / FPS if f > 0 else 0.0
+        ts.append(t)
+    return ts
+
+
+def intro_load():
+    global TRACKER
+    if INTRO_DATA:
+        return INTRO_DATA
+    clip, a, b, pre, _ = SCENES[INTRO_CLIP["scene"]]
+    ts = intro_times()
+    s, e = max(a, ts[0] - 0.1), min(b, ts[-1] + 0.12)
+    frames, times = _decode(clip, "transpose=1" in pre, s, e)
+    want = sorted(set(round(min(max(t, float(times[0])), float(times[-1])), 5) for t in ts))
+    frames, times = resample(frames, times, want)
+    m = re.findall(r"crop=(\d+):(\d+):(\d+):(\d+)", pre)[-1]
+    cw0, ch0, cx0, cy0 = map(int, m)
+    TRACKER = TRACKER or FaceTracker()
+    raw = track(list(frames), hint=(cx0 + cw0 / 2, cy0 + ch0 / 2), tracker=TRACKER)
+    fx, fy, fh = smooth_track(times, raw, sigma_s=0.25)
+    x0, y0, x1, y1 = SAFE_SCENE.get(INTRO_CLIP["scene"]) or SAFE.get(clip, (0, 0, 2096, 1180))
+    yf, hf = INTRO_CLIP["face"]
+    ch = float(np.clip(np.nanmedian(raw[:, 2]) / hf, MIN_CH, min(y1 - y0, (x1 - x0) / ASPECT)))
+    INTRO_DATA.update(frames=frames, times=np.asarray(times), fx=fx, fy=fy, ch=ch, safe=(x0, y0, x1, y1), ts=ts,
+                      found=int((~np.isnan(raw[:, 0])).sum()))
+    # Tonwerte wie im Vorbild-Intro: ganze Helligkeitsverteilung angleichen (eine Kurve fuer das ganze Intro)
+    ra = ref_frames()
+    m = ref_mask(144, 144)
+    m[60:84, 60:84] = False                                                    # Lade-Punkte
+    ref_l = np.concatenate([_lab(cv2.resize(ra[f], (144, 144), interpolation=cv2.INTER_AREA))[..., 0][m]
+                            for f in range(0, 144, 3)])
+    # S/W-Tonkurve wie im Vorbild-Intro: Gesicht klar sichtbar (Haut ~50), helle Flaechen hellgrau (~72, nicht
+    # grell weiss), Anzug fast schwarz. Ankerpunkte aus den eigenen Bildern (Gesichtsbereich per Gesichtserkennung).
+    own, face = [], []
+    for f in range(0, INTRO_END, 10):
+        L = intro_gray_l(f)
+        own.append(L[::4, ::4].ravel())
+        fh = 0.5 * INTRO_CLIP["face"][1] * H
+        cy = INTRO_CLIP["face"][0] * H
+        face.append(L[int(cy - 0.6 * fh):int(cy + 0.6 * fh), int(W / 2 - 0.45 * fh):int(W / 2 + 0.45 * fh)].ravel())
+    own, face = np.concatenate(own), np.concatenate(face)
+    p2, p98, fm = float(np.percentile(own, 2)), float(np.percentile(own, 98)), float(np.median(face))
+    xs = [0.0, p2, fm, p98, 100.0]
+    ys = [0.0, 3.0, 48.0, 64.0, 68.0]                                          # helle Flaechen grau wie die Wand im Vorbild
+    order = np.argsort(xs)
+    INTRO_DATA["curve"] = (np.array(xs)[order], np.array(ys)[order])
+    return INTRO_DATA
+
+
+def intro_gray_l(f):
+    """Felix-Bild des Intros als Graustufen-Helligkeit (Lab L, 0-100), Gesicht wie im Vorbild platziert"""
+    d = INTRO_DATA
+    t = d["ts"][f]
+    k = int(np.argmin(np.abs(d["times"] - t)))
+    x0, y0, x1, y1 = d["safe"]
+    ch = d["ch"]
+    cw = ch * ASPECT
+    cx = float(np.clip(d["fx"][k], x0 + cw / 2, x1 - cw / 2))
+    cy = float(np.clip(d["fy"][k] + (0.5 - INTRO_CLIP["face"][0]) * ch, y0 + ch / 2, y1 - ch / 2))
+    img = warp(d["frames"][k], cx, cy, ch, 0.0)                               # ohne Farbfilter: keine abgeschnittenen Lichter
+    return _lab(img)[..., 0]
+
+
+def loading_dots(img, f):
+    """TikTok-Lade-Punkte (rot/tuerkis) in der Bildmitte, tauschen alle 18 Bilder die Seite (Vorbild 7b)"""
+    run = next(((a, b) for a, b in INTRO_DOTS if a <= f <= b), None)
+    if run is None:
+        return img
+    ph = 2 * math.pi * (f - run[0]) / 18.0
+    depth = math.sin(ph)                                             # > 0: tuerkis vorne
+    xr, xc = 0.5 - 0.015 * math.cos(ph), 0.5 + 0.015 * math.cos(ph)
+    rr = 0.014 * (1 - 0.45 * max(depth, 0.0))
+    rc = 0.014 * (1 - 0.45 * max(-depth, 0.0))
+    red, cyan = ((xr, rr), (254, 44, 85)), ((xc, rc), (37, 244, 238))
+    dots = [red, cyan] if depth > 0 else [cyan, red]                  # hinterer Punkt zuerst, vorderer darueber
+    up = 4
+    out = img.astype(np.float32)
+    for (x, r), col in dots:
+        cx, cy, rad = x * W, 0.5 * H, r * W
+        x0, y0 = int(cx - rad - 3), int(cy - rad - 3)
+        size = int(2 * rad + 7)
+        m = np.zeros((size * up, size * up), np.uint8)
+        cv2.circle(m, (int((cx - x0) * up), int((cy - y0) * up)), int(rad * up), 255, -1, cv2.LINE_AA)
+        m = cv2.resize(m, (size, size), interpolation=cv2.INTER_AREA).astype(np.float32)[..., None] / 255.0
+        reg = out[y0:y0 + size, x0:x0 + size]
+        out[y0:y0 + size, x0:x0 + size] = reg * (1 - m) + np.array(col, np.float32) * m
+    return out
+
+
+def felix_intro(f):
+    d = intro_load()
+    L = np.interp(intro_gray_l(f), *d["curve"]).astype(np.float32)
+    lab = np.stack([L, np.zeros_like(L), np.zeros_like(L)], axis=2)
+    img = np.clip(cv2.cvtColor(lab, cv2.COLOR_LAB2RGB), 0, 1) * 255.0
+    img = finish(img)
+    img = loading_dots(img, f)
+    bar = int(round(INTRO_BAR.get(f, 0.0) * H))
+    if bar > 0:                                                       # Bild rutscht nach unten, oben schwarz
+        img = np.concatenate([np.zeros((bar, W, 3), np.float32), img[:H - bar]], axis=0)
+    return np.clip(img, 0, 255).astype(np.uint8)
 
 
 def end_frame(f):
@@ -881,7 +1047,7 @@ def render(f):
             out = np.clip(finish(trans_frame(i, f)), 0, 255).astype(np.uint8)
         else:
             img = layer(i, f, FX.get(f, {}))
-            out = np.clip(finish(match_lum(img, f)), 0, 255).astype(np.uint8)
+            out = np.clip(finish(img, 0.05, 0.04) if PLAIN else finish(match_lum(img, f)), 0, 255).astype(np.uint8)
     if REP and REP[0] <= f < REP[0] + (REP[2] - REP[1]):
         RENDERED[f] = out
     return out

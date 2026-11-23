@@ -11,7 +11,7 @@ Wichtige Dateien:
 * `projects/felix-sorinyx/`: fertiges Projekt (Renderer v15, Szenenliste, gemessene Kamerakurve)
 * `projects/felix-anzug/`: Felix-Edit nach Referenz 5 (Hochformat 3:4, Farbe/Schwarz-Weiß im Takt, Wische, Negativ-Kästchen; Hauptteil wiederholt sich)
 * `projects/hyunjin-konzert/`: Hyunjin-Edit nach Referenz 4 (Konzert), abgeleitet aus `felix-konzert` (Szenen aus `skz-material`, Kennungen H2a–H6b)
-* `projects/vorbild7/`: EIN Programm für zwei Edits nach Referenz 7a/7b (`EDIT=hyunjin` rotes Bühnen-Edit, `EDIT=felix` mit unverändertem Michael-Jackson-Intro aus dem Vorbild). Kann Intros aus dem Vorbild übernehmen (TikTok-Zeichen wegrechnen), Teile wiederholen und gemessene Effekte je Bild anwenden. Gute Vorlage für neue Edits.
+* `projects/vorbild7/`: EIN Programm für mehrere Edits: `EDIT=hyunjin` (Referenz 7a, rotes Bühnen-Edit), `EDIT=felix` (Referenz 7b, Intro mit Felix in S/W nachgebaut statt Michael Jackson), `EDIT=spam` (Referenz 8, „Spam my phone“-Trend mit Hyunjin, harte Schnitte, ohne Text). Kann Intros aus dem Vorbild übernehmen (TikTok-Zeichen wegrechnen), Teile wiederholen und gemessene Effekte je Bild anwenden. Gute Vorlage für neue Edits.
 * `projects/felix-drachen/`: Felix-Edit nach Referenz 6 (16:9, 27 Szenen, Ring-Bokeh, Strecken/Wölbung/Sanduhr). `calibrate.py` gleicht jede Unschärfe per Schärfe-Messung ans Vorbild an. **Unschärfe nie nach Augenmaß setzen.**
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)
