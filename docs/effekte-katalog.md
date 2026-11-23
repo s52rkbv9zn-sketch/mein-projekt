@@ -263,3 +263,7 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Streuung (Kontrast, Sättigung): L 0,70, a/b 0,80, Verhältnis begrenzt auf 0,4–1,5
   * v1 hatte 0,65/0,82 für beides. Dadurch waren dunkle Szenen zu hell und helle zu dunkel, und der Kontrast war doppelt so hoch wie im Vorbild. Die Schnitte waren zu hart: größte Bildänderung 69,7 statt 55,1.
   * Das Vorbild ist weich, kontrastarm und blaustichig (L-Streuung 9–23).
+* **Helligkeit Bild für Bild wie im Vorbild** (`match_lum`). Die Szenen-Angleichung allein reichte nicht: Im Vorbild wird z. B. Szene 7 zum Ende hin dunkler, die Kamera fliegt in Wolken, und der Schnitt in die dunkle Szene 8 ist dadurch weich.
+  * Lab-Helligkeit je Vorbild-Bild messen (ohne TikTok-Zeichen), innerhalb der Szene leicht glätten (σ 1 Bild).
+  * Eigenes Bild zu 80 % angleichen, höchstens ±30. Dunkler: Richtung Schwarz skalieren. Heller: Richtung Weiß, so bleiben Schwarz und Weiß sauber.
+  * **Härte am Schnitt** (größte Bildänderung, 64×36): Vorbild 56,5; v2 ohne Bild-Angleichung 71,3.

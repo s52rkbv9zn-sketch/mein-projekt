@@ -30,7 +30,7 @@ from look import cc
 MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
 REF = os.environ.get("REF6", os.path.join(MEDIA, "reference_drachen.mp4"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
-OUT = os.path.join(OUTDIR, "Felix_Drachen_Edit_v2.mp4")
+OUT = os.path.join(OUTDIR, "Felix_Drachen_Edit_v3.mp4")
 W, H, FPS = 1920, 1080, 30
 ASPECT = W / H
 K = W / 1024.0                   # Pixelwerte wurden bei 1024 px Breite gemessen
@@ -412,6 +412,47 @@ def grade(img, i):
     return np.clip(cv2.cvtColor(lab.astype(np.float32), cv2.COLOR_LAB2RGB), 0, 1) * 255.0
 
 
+# Helligkeit Bild fuer Bild wie im Vorbild (Verlauf innerhalb der Szene, Blitze, Abdunkeln vor dem Schnitt)
+REF_LUM = None
+LUM_STRENGTH, LUM_MAX = 0.8, 30.0
+
+
+def ref_lum(f):
+    """mittlere Lab-Helligkeit des Vorbild-Bildes f (ohne TikTok-Zeichen/Schrift), innerhalb der Szene leicht geglaettet"""
+    global REF_LUM
+    if REF_LUM is None:
+        ra = ref_frames()
+        m = np.ones((72, 128), bool)
+        m[:9, :15] = False
+        m[60:, 112:] = False
+        m[60:70, 47:82] = False
+        raw = np.array([_lab(cv2.resize(x, (128, 72), interpolation=cv2.INTER_AREA))[..., 0][m].mean() for x in ra])
+        REF_LUM = raw.copy()
+        for i in range(len(CUTS)):
+            a, b = CUTS[i], min(seg_end(i), len(raw))
+            seg = raw[a:b]
+            if len(seg) > 3:
+                k = np.exp(-0.5 * (np.arange(-3, 4) / 1.0) ** 2)
+                pad = np.pad(seg, 3, mode="edge")
+                REF_LUM[a:b] = np.convolve(pad, k / k.sum(), mode="valid")
+    return float(REF_LUM[min(f, len(REF_LUM) - 1)])
+
+
+def match_lum(img, f):
+    """Helligkeit ans Vorbild-Bild angleichen: dunkler = Richtung Schwarz skalieren, heller = Richtung Weiss"""
+    x = np.clip(img, 0, 255).astype(np.float32)
+    cur = float(_lab(cv2.resize(x, (128, 72), interpolation=cv2.INTER_AREA))[..., 0].mean())
+    shift = float(np.clip((ref_lum(f) - cur) * LUM_STRENGTH, -LUM_MAX, LUM_MAX))
+    if abs(shift) < 0.5:
+        return img
+    lab = _lab(x)
+    if shift < 0:
+        lab[..., 0] *= (cur + shift) / max(cur, 1e-3)
+    else:
+        lab[..., 0] = 100 - (100 - lab[..., 0]) * (100 - cur - shift) / max(100 - cur, 1e-3)
+    return np.clip(cv2.cvtColor(lab, cv2.COLOR_LAB2RGB), 0, 1) * 255.0
+
+
 def finish(img, soften=0.15, glow=0.10):
     x = np.clip(img, 0, 255) / 255.0
     x = x * (1 - soften) + cv2.GaussianBlur(x, (0, 0), 1.4) * soften
@@ -586,7 +627,7 @@ def layer(i, f, spec):
 def render(f):
     i = seg_of(f)
     img = layer(i, f, FX.get(f, {}))
-    img = finish(img)
+    img = finish(match_lum(img, f))
     if f >= NF - 6:                                               # weich ins Schwarze am Ende
         img = img * (NF - f) / 7.0
     return np.clip(img, 0, 255).astype(np.uint8)
