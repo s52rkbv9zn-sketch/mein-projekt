@@ -267,3 +267,49 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Lab-Helligkeit je Vorbild-Bild messen (ohne TikTok-Zeichen), innerhalb der Szene leicht glätten (σ 1 Bild).
   * Eigenes Bild zu 80 % angleichen, höchstens ±30. Dunkler: Richtung Schwarz skalieren. Heller: Richtung Weiß, so bleiben Schwarz und Weiß sauber.
   * **Härte am Schnitt** (größte Bildänderung, 64×36): Vorbild 56,5; v2 ohne Bild-Angleichung 71,3.
+
+---
+
+# Referenz 7a: rotes Bühnen-Edit (Cowboyhut), mit Hyunjin umgesetzt in `projects/vorbild7` (EDIT=hyunjin)
+
+576×576, 30 fps, Song ca. 136 BPM.
+
+* **Länge:** Edit bis 567, danach schwarz bis 601 (die Musik läuft weiter), dann TikTok-Abspann (weggelassen).
+* **Ausgabe:** 1080×1080.
+* **Aufbau:**
+  * Intro 0–143: EIN Clip. Einblendung aus Schwarz über ~30 Bilder, zwei Lichtblitze (49, 59).
+  * Weißblitz 144.
+  * Hauptteil 145–355 mit 13 Szenen. Schnitte: 145, 170, 184, 209, 221, 231, 237, 249, 275, 287, 315, 328, 336.
+  * **356–567 = 144–355 noch einmal.**
+* **Übergänge:**
+  * Einzelbild-Weißblitze: 144, 230, 335 (hellgrau), 356
+  * dunkle Unschärfe-Dips: 183–185, 209, 221, 249, 275, 328
+  * waagerechter Wisch 169–171
+  * Scharfwerden nach dem Blitz: 145–152
+  * Lichtblitze in der Szene: 187, 192–193
+  * Schwarz-Weiß-Szene 231–236
+  * **rote Wellen-Verzerrung** 237–238: jede Zeile im Zickzack verschoben, Dreieckswelle, Amplitude 0,07–0,10 der Breite, Periode 0,07 der Höhe
+* **Kamera:** durchgehender Zoom hinein (~1,1–1,4 % pro Bild), vor dem Schnitt schneller (bis +3,7 %).
+* **Tempo:** normal, keine Zeitlupe. Bewegung im Vorbild 6–10, Intro mit Lichtgeflacker.
+* **Gesichter:** halbnah, Gesicht bei y ≈ 0,30, Größe ≈ 0,15–0,24.
+
+# Referenz 7b: Michael-Jackson-Intro, mit Felix umgesetzt in `projects/vorbild7` (EDIT=felix)
+
+576×576, 30 fps.
+
+* **Länge:** Edit bis 479, Weiß → Schwarz bis 509, dann TikTok-Abspann.
+* **Intro 0–150 (Michael Jackson, Schwarz-Weiß):** Wunsch des Nutzers: unverändert lassen. Es wird aus dem Vorbild übernommen.
+  * TikTok-Logo und Name oben links (0–125 × 0–102 px) weggerechnet (`cv2.inpaint`).
+  * Ebenso die rot/türkis blinkenden Punkte in der Bildmitte (Erkennung: Farbe im S/W-Bild).
+  * Danach auf 1080 hochskaliert (Lanczos + leicht nachgeschärft).
+* **Farbteil:** 6 Szenen, Schnitte bei 151, 173, 191, 234, 252, 271. **316–479 = 151–314 noch einmal.**
+* **Übergänge:**
+  * dunkle Wisch-Übergänge (waagerecht): 171–176, 191–195, 232–238, 250–253, 270–274
+  * Einstieg aus dem Intro 151–157: grau, entsättigt, verwischt, dann scharf werdend
+* **Zoom-Pulse auf den Schlägen** (204, 216, 225, 282, 293, 304):
+  * Die Kamera zoomt im Wechsel heraus und hinein, mit bis zu 10 % pro Bild am Schlag.
+  * Dazu ein Lichtblitz (+25 Helligkeit) und kurze Wisch-Unschärfe.
+  * Ohne Zeitsprung im Clip.
+  * Umsetzung: Kamerakurve des Vorbilds mit Dämpfung 0,9.
+* **Ende:** 480 weiß, blendet bis 507 ins Schwarze (Grauwerte wie im Vorbild).
+* **Tempo:** normal (Bewegung im Vorbild 6,7–8,6).

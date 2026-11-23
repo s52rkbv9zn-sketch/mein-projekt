@@ -30,6 +30,8 @@ EXPECTED = {
     "reference_konzert.mov": ("2c813e447b6ef0dce0e0e3c5b0511473", 17.430),   # Referenz 4 (Konzert-Edit)
     "reference_anzug.mov": ("84c32ee4b2afddace7730b76ec0f8a1b", 13.966),   # Referenz 5 (Anzug-Edit)
     "reference_drachen.mp4": ("ce202601a7154b74cbb949d1cac33688", 33.624),   # Referenz 6 (Drachen-Edit, 16:9)
+    "reference_rot.mp4": ("a052f5a19e497b883cb6532127b720e6", 24.067),   # Referenz 7a (rotes Buehnen-Edit, Hyunjin)
+    "reference_mj.mp4": ("88f4f2b7e3559fe158a3b097a057e7b8", 21.020),   # Referenz 7b (Michael-Jackson-Intro, Felix)
 }
 
 
