@@ -12,6 +12,7 @@ Wichtige Dateien:
 * `projects/felix-anzug/`: Felix-Edit nach Referenz 5 (Hochformat 3:4, Farbe/Schwarz-Weiß im Takt, Wische, Negativ-Kästchen; Hauptteil wiederholt sich)
 * `projects/hyunjin-konzert/`: Hyunjin-Edit nach Referenz 4 (Konzert), abgeleitet aus `felix-konzert` (Szenen aus `skz-material`, Kennungen H2a–H6b)
 * `projects/vorbild7/`: EIN Programm für mehrere Edits: `EDIT=hyunjin` (Referenz 7a, rotes Bühnen-Edit), `EDIT=felix` (Referenz 7b, Intro mit Felix in S/W nachgebaut statt Michael Jackson), `EDIT=spam` (Referenz 8, „Spam my phone“-Trend mit Hyunjin, harte Schnitte, ohne Text). Kann Intros aus dem Vorbild übernehmen (TikTok-Zeichen wegrechnen), Teile wiederholen und gemessene Effekte je Bild anwenden. Gute Vorlage für neue Edits.
+* `projects/beggin/`: Lyric-Edit nach Referenz 9 („Beggin'“). Text und Flackern werden aus dem Vorbild herausgerechnet (`make_masks.sh`: `text_mask.py` + `text_drift.py`), der Hintergrund ist neu: alle 8 Mitglieder im Wechsel (`render.py`). Vorlage, wenn der Nutzer den Text eines Vorbilds behalten und nur den Hintergrund tauschen will.
 * `projects/felix-drachen/`: Felix-Edit nach Referenz 6 (16:9, 27 Szenen, Ring-Bokeh, Strecken/Wölbung/Sanduhr). `calibrate.py` gleicht jede Unschärfe per Schärfe-Messung ans Vorbild an. **Unschärfe nie nach Augenmaß setzen.**
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)

@@ -424,3 +424,56 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **S/W-Tonkurve:** Gesicht → L 48, Lichter → 64–68 (grau wie die Wand im Vorbild), Schatten fast schwarz.
   * Lehre: Histogramm-Angleichung an das Vorbild machte große helle Flächen flach grau (Straße hinter Felix).
 * **Szene C2** jetzt Bärenmütze, weil der Anzug schon im Intro ist.
+
+# Referenz 9: „Beggin'“-Lyric-Edit (ausgestanzter Text, Flackern), mit allen 8 Mitgliedern in `projects/beggin`
+
+1024×576, 30 fps. Wunsch des Nutzers: **Text und Effekte bleiben, nur der Hintergrund wird getauscht** (Mitglieder in kurzen Abständen).
+
+* **Länge:** Inhalt bis Bild 665 (22,2 s). Der Song endet bei 22,20 s, ab 22,22 s kommt der TikTok-Abspann-Ton.
+* **Effekt „Verwaschen“:**
+  * Das ganze Bild wechselt im Takt zwischen „normal“ und „verwaschen“.
+  * Verwaschen heißt W(x) = A·x + B mit A ≈ (0,50; 0,53; 0,51) und B ≈ (118; 114; 116) je Kanal RGB, also 50 % fast-Weiß.
+  * Die Wörter zeigen immer den **umgekehrten** Zustand („ausgestanzt“).
+* **62 Wechsel** (10, 13, 19, … 650), im Achtel- oder Viertel-Takt (Song ≈ 129 BPM).
+  * Lange Strecken: 217–253 normal (Titel „beggin'“) und 436–481 verwaschen („BABY“).
+* **Text-Animation:**
+  * Wörter blinken 1–2 Bilder.
+  * Wörter werden getippt (BA → BABY, DAR → DARLING).
+  * „hand“ und „girl“ stehen senkrecht.
+  * Die Textebene gleitet langsam: ~0,1–0,2 px pro Bild bei 1024 Breite, oben und unten verschieden, dazu ein leichter Zoom.
+* **Abblende:** 653–663 Helligkeit 0,93 → 0,26, danach fast schwarz.
+* **Text-Masken** (`text_mask.py`, komplett: `make_masks.sh`, ~8 min):
+  * Je Bildpaar gibt es drei Beziehungen: gleich, wird normal, wird verwaschen.
+  * Der Zustand jedes Punktes wird vorwärts und rückwärts verfolgt. Text = Zustand ≠ Zustand des ganzen Bildes.
+  * **Vorher die Bilder in „ruhende Text-Koordinaten“ umrechnen** (Bewegung aus `text_drift.py`, gespeichert in `text_drift.npz`).
+    * Sonst friert die Maske zwischen zwei Wechseln ein und springt dann.
+    * Buchstaben werden dabei auf einer Seite bis 7 px dünner, und das „i“ in „beggin'“ fehlte ganz.
+  * Danach in dieser Reihenfolge:
+    * aufräumen: Rand, TikTok-Logos, dieselbe Form muss in ±3 Bildern wiederkehren, kleine Teile nur in Wortgruppen
+    * vervollständigen: Mehrheit aus ±12 Bildern
+    * glätten: Schließen 3, Median 5
+    * zurück in Bildkoordinaten (weiche Kanten)
+  * Median 3 (statt 5) und Glättung der Beziehungen σ 0,5, sonst verschwinden dünne Striche kleiner Wörter.
+  * Grenze: Kleine Wörter („of girl fact“, kleines „beggin'“) bleiben etwas rau. Dort ist der Hintergrund des Vorbilds fast weiß oder sehr unruhig.
+* **Hintergrund** (`render.py`):
+  * 26 Szenen der 8 Mitglieder.
+  * Schnitt nur auf einem Flacker-Wechsel, alle 0,4–1,5 s. Das Bild springt dort ohnehin.
+  * Zeitlupe 0,5× (`slowmo.resample`).
+  * **Gesicht mittig:**
+    * Der Ausschnitt ist so schmal, dass das Gesicht in jedem Bild der Szene mittig stehen kann.
+    * Höchstens 2,1× vergrößern. Die Hochformat-Quellen von Bang Chan sind nur 1180 px breit.
+  * Leichter Zoom 1,00 → 1,04 je Szene.
+  * Farbe: CC-Filter, dann teilweise Lab-Angleichung an die Nahaufnahme des Vorbilds. Verwaschene Bilder werden dafür zurückgerechnet. Stärke: L 45 %, a/b 35 %.
+  * Danach Verwaschen und Ausstanzen mit den Vorbild-Masken, Abblende, Ton bis 22,19 s.
+* **Achtung, Schnitte und Blitze in den Quellen:** Die Vlogs haben Jump-Cuts, die Fotoshootings Kamerablitze. Das gab Doppelbilder und Flackern:
+  * Changbin 3a: Schnitt bei 0,55 s
+  * Han 7b: Schnitt bei 10,53 s
+  * Changbin 3c: Blitze bei 6,35 / 6,75 / 7,29 s
+  * Hyunjin Wappen: schnelle Bewegung ab 11,02 s
+  * `render.py` warnt jetzt automatisch („ACHTUNG … Schnitt/Blitz in der Quelle“), wenn die Bildänderung in einer Szene über 15 liegt. Normale Bewegung liegt bei 1–9.
+* **Ausschnitte (sicherer Bereich, volle Koordinaten 2556×1180):**
+  * Han (RACHA-Logo oben rechts, Untertitel): x < 2010, y < 980
+  * Felix Fell-Jacke (Untertitel, 2 Zeilen): y < 925
+  * Seungmin weißes Studio (Text oben links): y ≥ 130
+  * Lee Know und I.N (TALKER-Logo): x < 2060
+  * Hyunjin Wappen-Fotoshooting (heller Rahmen, „Paper Tale“-Zeichen oben links bis x 460): x ≥ 470, y ≥ 90

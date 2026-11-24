@@ -33,6 +33,7 @@ EXPECTED = {
     "reference_rot.mp4": ("a052f5a19e497b883cb6532127b720e6", 24.067),   # Referenz 7a (rotes Buehnen-Edit, Hyunjin)
     "reference_mj.mp4": ("88f4f2b7e3559fe158a3b097a057e7b8", 21.020),   # Referenz 7b (Michael-Jackson-Intro, Felix)
     "reference_spam.mp4": ("15a9ce3073b7f342a69cfbb75b482ddf", 21.967),   # Referenz 8 ("Spam my phone", Hyunjin)
+    "reference_beggin.mp4": ("a88d074f648b84fb41262a5c9f3c04d4", 26.237),   # Referenz 9 (Beggin-Lyric-Edit, SKZ)
 }
 
 

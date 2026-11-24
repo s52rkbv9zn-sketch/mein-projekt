@@ -9,3 +9,7 @@ out/
 *.jpg
 __pycache__/
 *.pyc
+
+# grosse Zwischenergebnisse (Text-Masken usw.) - werden per Skript neu berechnet
+*.npy
+masks/
