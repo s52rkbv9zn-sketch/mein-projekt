@@ -5,17 +5,20 @@ Das Vorbild: Nahaufnahme einer Frau, darueber grosse Lyric-Woerter. Im Takt wech
 "normal" und "verwaschen" (50 % fast-Weiss: W(x) = A*x + B); die Woerter zeigen immer den umgekehrten Zustand
 (Text "ausgestanzt"). Am Ende Abblende nach Schwarz.
 
-Hier: Text, Flackern, Abblende und Ton 1:1 aus dem Vorbild (Masken aus text_mask.py, Zustand je Bild),
+Hier: Flackern, Abblende und Ton 1:1 aus dem Vorbild (Zustand je Bild aus text_mask.py). Die Schrift ist NEU
+GESETZT (Wunsch des Nutzers: die herausgerechnete Schrift war zu ausgefranst): schmale Helvetica (Nimbus Sans
+Narrow), jedes Wort an Lage/Groesse/Drehung des Vorbilds angepasst, Wisch/Eintippen/Blinken je Bild gemessen
+(fit_words.py -> words_fit.json), Gleiten der Textebene aus text_drift.npz (text_layer.py),
 nur der Hintergrund ist neu: die 8 Mitglieder im Wechsel (Schnitt nur auf einem Flacker-Wechsel, alle 0,4-1,5 s),
 in Zeitlupe (0,5x wie die ruhige Nahaufnahme im Vorbild), Gesicht mittig, leichter Zoom, CC-Filter.
 
     python3 render.py                      # ganzes Video
     python3 render.py frames 0 230 450     # Einzelbilder als PNG (Kontrolle)
     python3 render.py sheet                # Uebersicht: Anfang/Mitte/Ende jeder Szene
-Umgebung: BEGGIN_MASKS (Ordner mit masks.npy, state.npy, gains.npy), BEGGIN_REF (Vorbild, fuer den Ton),
+Umgebung: BEGGIN_REF (Vorbild, fuer Ton und Farbmessung),
 EDIT_OUT (Ausgabeordner).
 """
-import os, re, subprocess, sys, time
+import json, os, re, subprocess, sys, time
 import numpy as np
 import cv2
 
@@ -27,10 +30,15 @@ from face_track import FaceTracker, track, smooth_track
 from slowmo import resample
 from look import cc
 from dedupe import unique_indices
+from text_layer import TextLayer
 
 SKZ = os.environ.get("SKZ_MEDIA", os.path.join(HERE, "..", "skz-material", "media"))
 FEL = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
-MASKS = os.environ.get("BEGGIN_MASKS", os.path.join(HERE, "masks"))
+# Schrift: neu gesetzt (words_fit.json aus fit_words.py, Bewegung text_drift.npz); Flacker-Zustand und Abblende
+# des Vorbilds je Bild (ref_state.json aus text_mask.py)
+FIT_JSON = os.path.join(HERE, "words_fit.json")
+DRIFT_NPZ = os.path.join(HERE, "text_drift.npz")
+STATE_JSON = os.path.join(HERE, "ref_state.json")
 REF = os.environ.get("BEGGIN_REF", os.path.join(FEL, "reference_beggin.mp4"))
 OUTDIR = os.environ.get("EDIT_OUT", os.path.join(HERE, "out"))
 OUT = os.path.join(OUTDIR, "SKZ_Beggin_Edit.mp4")
@@ -242,25 +250,26 @@ MATCH_K = np.array([0.45, 0.35, 0.35], np.float32)     # L, a, b: wie stark an d
 
 
 # ------------------------------------------------------------------ Vorbild-Daten
-def load_masks():
-    masks = np.load(os.path.join(MASKS, "masks.npy"), mmap_mode="r")
-    state = np.load(os.path.join(MASKS, "state.npy")).astype(bool)
-    gains = np.load(os.path.join(MASKS, "gains.npy"))
-    return masks, state, gains
+def load_ref():
+    d = json.load(open(STATE_JSON))
+    state = np.array(d["state"], bool)
+    gains = np.array(d["gains"], np.float32)
+    text = TextLayer(FIT_JSON, DRIFT_NPZ, W, H)              # neu gesetzte Schrift in Ausgabegroesse
+    text_ref = TextLayer(FIT_JSON, DRIFT_NPZ, 1024, 576)     # dieselbe in Vorbild-Groesse (Farbmessung)
+    return text, text_ref, state, gains
 
 
-def frame_params(masks, state, gains, f):
-    """Maske, Zustand und Helligkeit (Abblende) fuer Bild f. Nach dem letzten gemessenen Bild: Maske/Zustand
-    vom letzten Bild, Helligkeit laeuft weiter gegen Schwarz (Vorbild: 664-666 fast schwarz)."""
+def frame_params(text, state, gains, f):
+    """Schrift (Alpha 0..1), Zustand und Helligkeit (Abblende) fuer Bild f. Nach dem letzten gemessenen Bild:
+    Schrift/Zustand vom letzten Bild, Helligkeit laeuft weiter gegen Schwarz (Vorbild: 664-666 fast schwarz)."""
     last = len(state) - 1
     g = float(gains[min(f, last)])
     if f > last:
         g = max(0.0, float(gains[last]) - 0.07 * (f - last))
-    m = masks[min(f, len(masks) - 1)]
-    return m, bool(state[min(f, last)]), g
+    return text.frame(min(f, last)), bool(state[min(f, last)]), g
 
 
-def ref_vivid_stats(masks, state, f0, f1):
+def ref_vivid_stats(text_ref, state, f0, f1):
     """Farbstatistik der Nahaufnahme im Vorbild (verwaschene Bilder zurueckgerechnet), Bilder f0..f1"""
     cap = cv2.VideoCapture(REF)
     stats = []
@@ -272,7 +281,7 @@ def ref_vivid_stats(masks, state, f0, f1):
         if f % 3:
             continue
         img = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32)
-        m = (np.asarray(masks[min(f, len(masks) - 1)]) > 127)[..., None]
+        m = (text_ref.frame(min(f, len(state) - 1)) > 0.5)[..., None]
         washed = state[min(f, len(state) - 1)]
         # Bildpunkte im Zustand "verwaschen" zurueckrechnen
         is_w = np.where(m, not washed, washed)
@@ -285,11 +294,10 @@ def ref_vivid_stats(masks, state, f0, f1):
 
 
 # ------------------------------------------------------------------ Zusammensetzen
-def compose(bg, m, washed, gain):
-    """bg: Hintergrund (float RGB 0..255, W x H). m: Text-Maske des Vorbilds (uint8 576x1024, weich)."""
+def compose(bg, a, washed, gain):
+    """bg: Hintergrund (float RGB 0..255, W x H). a: neu gesetzte Schrift (Alpha 0..1, W x H)."""
     wash = bg * WA + WB
-    a = cv2.resize(np.asarray(m), (W, H), interpolation=cv2.INTER_CUBIC).astype(np.float32) / 255.0
-    a = np.clip(cv2.GaussianBlur(a, (0, 0), 0.6), 0, 1)[..., None]
+    a = np.clip(a, 0, 1)[..., None]
     base, txt = (wash, bg) if washed else (bg, wash)
     out = base * (1 - a) + txt * a
     if gain < 0.999:
@@ -298,7 +306,7 @@ def compose(bg, m, washed, gain):
 
 
 def render(which=None, sheet=False):
-    masks, state, gains = load_masks()
+    text, text_ref, state, gains = load_ref()
     os.makedirs(OUTDIR, exist_ok=True)
     frames_wanted = set(which) if which else None
     proc = None
@@ -323,7 +331,7 @@ def render(which=None, sheet=False):
         if sheet:
             fr = [sh["f0"], (sh["f0"] + sh["f1"]) // 2, sh["f1"] - 1]
         d = prepare(sh)
-        rs = ref_vivid_stats(masks, state, sh["f0"], sh["f1"])
+        rs = ref_vivid_stats(text_ref, state, sh["f0"], sh["f1"])
         own = [lab_stats(cc(shot_frame(sh, d, f), sat=1.18, clarity=0.22, detail=0.40, bloom=0.10))
                for f in (sh["f0"], (sh["f0"] + sh["f1"]) // 2, sh["f1"] - 1)]
         match = None if rs is None else ((np.mean([o[0] for o in own], 0), np.mean([o[1] for o in own], 0)), rs, MATCH_K)
@@ -331,8 +339,8 @@ def render(which=None, sheet=False):
               f"  Bereich {d['box']}  {time.time() - t0:5.0f}s", flush=True)
         for f in fr:
             bg = grade(shot_frame(sh, d, f), match)
-            m, washed, gain = frame_params(masks, state, gains, f)
-            out = np.clip(compose(bg, m, washed, gain), 0, 255).astype(np.uint8)
+            a, washed, gain = frame_params(text, state, gains, f)
+            out = np.clip(compose(bg, a, washed, gain), 0, 255).astype(np.uint8)
             if proc:
                 proc.stdin.write(out.tobytes())
             elif sheet:

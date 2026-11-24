@@ -1,5 +1,6 @@
 #!/bin/bash
-# Text-Masken aus dem Vorbild (Referenz 9, "Beggin'") neu berechnen (~8 min, ~3 GB Speicher).
+# Text-Masken aus dem Vorbild (Referenz 9, "Beggin'") neu berechnen und die Schrift daran neu setzen
+# (~12 min, ~3 GB Speicher). Fuer render.py reichen danach words_fit.json, text_drift.npz und ref_state.json.
 # Aufruf: ./make_masks.sh [Vorbild.mp4] [Ausgabeordner]
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -16,4 +17,14 @@ fi
 # 3. Endgueltige Masken in ruhenden Text-Koordinaten
 DRIFT="$HERE/text_drift.npz" MEDIAN=3 REL_SIGMA=0.5 python3 "$HERE/text_mask.py" "$REF" "$OUT" $LAST
 rm -rf "$OUT/pass1"
-echo "Masken fertig in $OUT (masks.npy, state.npy, gains.npy)"
+# 4. Schrift neu setzen: jedes Wort aus words.py an die Masken anpassen (Lage, Groesse, Wisch/Eintippen/Blinken)
+python3 "$HERE/fit_words.py" "$OUT" "$HERE/words_fit.json"
+# 5. Flacker-Zustand und Abblende je Bild fuer render.py
+python3 - "$OUT" "$HERE/ref_state.json" <<'PY'
+import json, sys, numpy as np
+o = sys.argv[1]
+json.dump(dict(info="Referenz 9: Zustand je Bild (1 = verwaschen) und Helligkeit der Abblende, aus text_mask.py",
+               state=np.load(o + "/state.npy").astype(int).tolist(),
+               gains=np.load(o + "/gains.npy").astype(float).round(4).tolist()), open(sys.argv[2], "w"))
+PY
+echo "Fertig: $OUT (Masken), words_fit.json, ref_state.json"

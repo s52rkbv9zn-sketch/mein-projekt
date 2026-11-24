@@ -12,7 +12,7 @@ Wichtige Dateien:
 * `projects/felix-anzug/`: Felix-Edit nach Referenz 5 (Hochformat 3:4, Farbe/Schwarz-Weiß im Takt, Wische, Negativ-Kästchen; Hauptteil wiederholt sich)
 * `projects/hyunjin-konzert/`: Hyunjin-Edit nach Referenz 4 (Konzert), abgeleitet aus `felix-konzert` (Szenen aus `skz-material`, Kennungen H2a–H6b)
 * `projects/vorbild7/`: EIN Programm für mehrere Edits: `EDIT=hyunjin` (Referenz 7a, rotes Bühnen-Edit), `EDIT=felix` (Referenz 7b, Intro mit Felix in S/W nachgebaut statt Michael Jackson), `EDIT=spam` (Referenz 8, „Spam my phone“-Trend mit Hyunjin, harte Schnitte, ohne Text). Kann Intros aus dem Vorbild übernehmen (TikTok-Zeichen wegrechnen), Teile wiederholen und gemessene Effekte je Bild anwenden. Gute Vorlage für neue Edits.
-* `projects/beggin/`: Lyric-Edit nach Referenz 9 („Beggin'“). Text und Flackern werden aus dem Vorbild herausgerechnet (`make_masks.sh`: `text_mask.py` + `text_drift.py`), der Hintergrund ist neu: alle 8 Mitglieder im Wechsel (`render.py`). Vorlage, wenn der Nutzer den Text eines Vorbilds behalten und nur den Hintergrund tauschen will.
+* `projects/beggin/`: Lyric-Edit nach Referenz 9 („Beggin'“). Flackern aus dem Vorbild herausgerechnet, Schrift neu gesetzt (schmale Helvetica, jedes Wort an Lage/Animation angepasst: `make_masks.sh` → `fit_words.py` → `words_fit.json`, gezeichnet von `text_layer.py`), Hintergrund neu: alle 8 Mitglieder im Wechsel (`render.py`). Vorlage, wenn der Nutzer den Text eines Vorbilds behalten und nur den Hintergrund tauschen will.
 * `projects/felix-drachen/`: Felix-Edit nach Referenz 6 (16:9, 27 Szenen, Ring-Bokeh, Strecken/Wölbung/Sanduhr). `calibrate.py` gleicht jede Unschärfe per Schärfe-Messung ans Vorbild an. **Unschärfe nie nach Augenmaß setzen.**
 
 ## Regeln des Nutzers (gelernt, bitte einhalten)
@@ -28,6 +28,7 @@ Wichtige Dateien:
 9. **Die Person immer mittig.** Ausschnitt per Gesichtserkennung (`edit-toolkit/face_track.py`) führen: Gesicht waagerecht in der Mitte, Höhe und Größe wie im Vorbild. Ausschnitt nur im „sicheren Bereich“ ohne Einblendungen. Kleine Einblendungen am Rand notfalls wegrechnen (`cv2.inpaint`).
 10. **Weiche Übergänge.** Unschärfe am Schnitt eher stärker als gedacht (am Bild abgleichen, nicht nur schätzen). Farben jeder Szene an die passende Vorbild-Szene angleichen (Lab-Mittelwert/Streuung), damit die Farbsprünge am Schnitt klein bleiben. Maß: größte Bildänderung am Schnitt ≈ Vorbild.
 11. Wenn der Nutzer auf eine Stelle zeigt (Screenshot oder Sekunde), genau diese Stelle ändern und den Rest so lassen. Bei Unklarheit (welche Szene?) Szenen in der Antwort benennen.
+12. **Schrift aus einem Vorbild übernehmen = neu setzen**, nicht aus dem Video ausschneiden. Ausgeschnittene Schrift war dem Nutzer zu ausgefranst. Schriftart bestimmen und jedes Wort an Lage, Größe und Animation anpassen. Vorlage: `projects/beggin/fit_words.py` und `text_layer.py`.
 
 ## Ablauf, der sich bewährt hat
 

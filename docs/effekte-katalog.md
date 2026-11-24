@@ -477,3 +477,25 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Seungmin weißes Studio (Text oben links): y ≥ 130
   * Lee Know und I.N (TALKER-Logo): x < 2060
   * Hyunjin Wappen-Fotoshooting (heller Rahmen, „Paper Tale“-Zeichen oben links bis x 460): x ≥ 470, y ≥ 90
+
+## Referenz 9, Version 2: Schrift neu gesetzt (Feedback: „die Schrift ist schlecht, mach sie 1:1 neu“)
+
+* **Lehre:** Aus dem Vorbild herausgerechnete Schrift wirkt ausgefranst (raue Kanten, Löcher, kleine Wörter unvollständig). Der Nutzer will die Schrift **neu gesetzt**, gestochen scharf und 1:1 an derselben Stelle.
+* **Schriftart:** schmale Helvetica.
+  * Am besten passt `Nimbus Sans Narrow` (Paket fonts-urw-base35) oder `TeX Gyre Heros Cn` (fonts-texgyre).
+  * Überdeckung mit dem Vorbild ≈ 0,90 bei Streckung 1,00–1,03 und Laufweite 0.
+  * Normale Helvetica/Arial passt nur gestaucht (sx ≈ 0,82) und schlechter.
+* **Ablauf (`fit_words.py`, Ergebnis `words_fit.json`):**
+  1. Alle Wörter mit Zeitbereich von Hand aus den Masken ablesen (`words.py`, 47 Wörter).
+  2. Jedes Wort in ~60 Größen per Kreuzkorrelation suchen, nach Überdeckung im Umfeld bewerten, fein anpassen (Größe, Streckung, Lage).
+     * Reihenfolge: immer das Wort zuerst, das am eindeutigsten passt. Gleichzeitig sichtbare Wörter danach aus dem Suchbild entfernen.
+     * Sonst setzen sich kurze Wörter („of“, „i“) oder kleine lange Wörter („HEART“) auf ein großes Wort.
+  3. Je Bild den sichtbaren Teil jedes Wortes entlang der Schreibrichtung messen.
+* **Animationen im Vorbild:**
+  * **Wisch beim Erscheinen:** Im ersten Bild ist nur der hintere Teil zu sehen, mit gerader Kante mitten durch einen Buchstaben („ees“ → „knees“, „OU“ → „YOU“, „ut“ → „put“, „JT“ → „OUT“). Danach 1–2 Bilder nichts, dann das ganze Wort.
+  * **Eintippen:** BE → BEGGIN, be → beggin', BA → BABY, DAR → DARLING.
+  * **Blinken:** einzelne Wörter oder alles für 1–2 Bilder weg.
+* **Zeichnen (`text_layer.py`):**
+  * Jedes Wort einmal in Ausgabegröße rendern (PIL, Kantenglättung) und auf den sichtbaren Teil zuschneiden (weiche Kante 0,6 px).
+  * Mit der gemessenen Bewegung der Textebene (`text_drift.npz`) verschieben.
+  * Für `render.py` reichen `words_fit.json`, `text_drift.npz` und `ref_state.json` (Flacker-Zustand und Abblende je Bild). Die großen Masken braucht man nur zum Neu-Anpassen.
