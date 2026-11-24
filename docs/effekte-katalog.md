@@ -412,6 +412,23 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Auch Überblendungen im Original selbst gibt es: H3b ab 8,37 s.
   * Deshalb Start + Länge × Tempo immer innerhalb der Szene halten, notfalls Tempo 0,92–0,98.
 
+## Referenz 8 mit Felix (`EDIT=spamfelix`)
+
+* Gleicher Ton, gleiche Schnitte und gleiche Gesichtslagen wie die Hyunjin-Version. Nur die Szenen sind Felix-Szenen aus `felix-sorinyx/scenes.py`, nach Art der Vorbild-Szene gewählt:
+  1. Ziegelwand, lächelt
+  2. isst am Tisch
+  3. Kamera im Bild
+  4. Bärenmütze
+  5. Selfie nah
+  6. sitzt, Blick zur Seite
+  7. lacht auf der Bühne
+  8. Lederjacke nah
+  9. Kaffee mit Strohhalm
+  10. Kussmund, rosa Haare
+  11. pinke Fell-Jacke nah
+* **Schnitte und Einblendungen in den Quellen:** Der Kaffee-Clip (clip9) hat bei 7,30 s einen Schnitt, deshalb ab 7,40 s. Im Mango-Clip (clip9) steht ab 2,75 s ein kleiner Untertitel „(냠)“ neben dem Kopf, deshalb 1,80–2,70 s. Der Anzug-Clip hat zwischen 1,5 und 3,6 s die Hand vor dem Gesicht, deshalb nicht genommen.
+* **Gesicht weit oben in der Quelle** (Bärenmütze, Fell-Jacke): Wird es auf 42 % Höhe gesetzt, wird der Ausschnitt sehr klein (×1,9). Gesicht stattdessen auf 27–32 % Höhe setzen, dann ×1,2–1,5.
+
 ## Referenz 7b mit Felix im Intro (Wunsch: „Anfang gleich lassen, aber mit Felix“)
 
 * **Intro 0–150 nachgebaut:** EIN Felix-Clip (Anzug mit Brille, `suit` ab 0,95 s) in Schwarz-Weiß.

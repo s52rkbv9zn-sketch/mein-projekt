@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Zwei Edits nach Vorbild 7 (beide 576x576, 30 fps) - ein Programm, Auswahl per EDIT=hyunjin | felix.
+"""Edits nach Vorbild 7 und 8 (576x576, 30 fps) - ein Programm, Auswahl per EDIT=hyunjin | felix | spam | spamfelix.
 
 EDIT=hyunjin  Vorbild 7a (rotes Buehnen-Edit, Cowboyhut): Intro 0-143 (EIN Clip, Einblendung aus Schwarz,
               zwei Lichtblitze), Weissblitz 144, Hauptteil 145-355 mit 13 Szenen (dunkle Unschaerfe-Dips,
@@ -9,6 +9,8 @@ EDIT=felix    Vorbild 7b: Michael-Jackson-Intro 0-150 wird UNVERAENDERT aus dem 
               TikTok-Zeichen/Name und die blinkenden Punkte in der Mitte weggerechnet). Danach Felix: 6 Szenen
               151-315 mit dunklen Wisch-Uebergaengen und Zoom-Pulsen + Lichtblitz auf den Schlaegen,
               316-479 = 151-314 noch einmal, 480-509 Weiss blendet ins Schwarze aus.
+EDIT=spam     Vorbild 8 ("Spam my phone"-Trend) mit Hyunjin: 11 Szenen, harte Schnitte, ohne Text, natuerliche Farben.
+EDIT=spamfelix  dasselbe mit Felix.
 Beide: Zoom/Drehung je Bild aus dem Vorbild, Unschaerfe-Staerken per calibrate.py gemessen, Farben je Szene
 und Helligkeit Bild fuer Bild ans Vorbild angeglichen, Person mittig (Gesichtserkennung), gleichmaessiger Takt.
 
@@ -71,6 +73,16 @@ HJ_SAFE = {
     "cap": (0, 0, 1800, 960), "heart": (0, 0, 1920, 1000), "hoodie": (0, 0, 2096, 1180),
     "mirror": (116, 0, 1978, 1180), "green_cam": (0, 0, 2096, 1020),
 }
+
+# Felix-Szenen (projects/felix-sorinyx/scenes.py): sichere Bereiche je Clip (ohne Untertitel/Logos), fuer felix/spamfelix
+FX_SAFE = {
+    "clip2.mov": (220, 80, 1950, 1000), "clip3.mov": (520, 0, 2096, 1180), "clip4.mov": (0, 0, 2096, 900),
+    "clip5.mov": (0, 80, 1180, 1950), "clip6.mov": (290, 0, 2096, 1080), "clip7.mov": (290, 0, 2096, 1180),
+    "clip9.mov": (0, 0, 2096, 960), "clip10.mov": (0, 0, 2096, 1180), "clip12.mov": (0, 0, 2096, 1000),
+    "clip13.mov": (0, 0, 2096, 1020),
+}
+FX_SAFE_SCENE = {"selfie": (150, 0, 1945, 1180)}
+FX_PATCHES = {"clip5.mov": [(64, 926, 162, 1170)]}
 
 
 if EDIT == "hyunjin":
@@ -189,19 +201,47 @@ elif EDIT == "spam":
     DAMP_Z, DAMP_R, ZMAX, RMAX = 0.0, 0.0, 1.0, 0.0    # keine eigene Kamerabewegung (Vorbild: nur harte Schnitte)
     OVERLAYS = [(0, 0, 130, 105), (455, 488, 576, 576), (140, 430, 436, 525)]   # TikTok-Zeichen, Text "Spam my phone"
     PLAIN = True                     # Trend-Video: keine Farb-/Helligkeitsangleichung an andere Personen
+elif EDIT == "spamfelix":
+    # Referenz 8 wie EDIT=spam (gleicher Ton, gleiche harten Schnitte, kein Text), nur mit Felix.
+    # Szenen nach Art der Vorbild-Szene gewaehlt (Ausschnitt/Stimmung), Gesichtslage wie in der Hyunjin-Version.
+    from scenes import SCENES
+    REF = os.path.join(FELIX, "media", "reference_spam.mp4")
+    MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
+    OUT = os.path.join(OUTDIR, "Felix_Spam_Edit.mp4")
+    SAFE = FX_SAFE
+    SAFE_SCENE = FX_SAFE_SCENE
+    PATCHES = FX_PATCHES
+    INTRO_END = 0
+    CUTS = [0, 55, 82, 104, 155, 219, 271, 320, 366, 429, 457]
+    FIRST_END = 538
+    PLAN = [
+        dict(scene="brick",     t=12.00, face=(0.34, 0.30)),   # 1  Fotoshooting, laechelt (Vorbild: filmt im Park)
+        dict(scene="eat",       t=1.80,  face=(0.34, 0.28)),   # 2  isst Mango (Vorbild: lacht am Tisch; ab 2,75 s Untertitel neben dem Kopf)
+        dict(scene="shoot_cam", t=9.50,  face=(0.35, 0.22)),   # 3  Kamera im Bild (Vorbild: Kamera hoch)
+        dict(scene="bear",      t=0.30,  face=(0.27, 0.26)),   # 4  Baerenmuetze (Vorbild: Selfie mit Kappe; weiter = schaerfer)
+        dict(scene="selfie",    t=3.30,  face=(0.42, 0.50)),   # 5  Selfie nah (Vorbild: Selfie ganz nah)
+        dict(scene="shoot_sit", t=2.50,  face=(0.33, 0.35)),   # 6  sitzt, Blick zur Seite (Vorbild: Greenscreen)
+        dict(scene="red_laugh", t=7.80,  face=(0.37, 0.24)),   # 7  lacht (Vorbild: lacht draussen)
+        dict(scene="shoot_red", t=6.80,  face=(0.40, 0.40)),   # 8  Lederjacke nah (Vorbild: Lederjacke nah)
+        dict(scene="coffee",    t=7.40,  face=(0.34, 0.30)),   # 9  Kaffee mit Strohhalm (nach dem Schnitt der Quelle bei 7,30 s)
+        dict(scene="pink_kiss", t=7.65,  face=(0.36, 0.33)),   # 10 rosa Haare, Kussmund (Vorbild: Muetze, Hand am Kopf)
+        dict(scene="fur",       t=5.00,  face=(0.32, 0.42)),   # 11 pinkes Fell, nah (Schluss)
+    ]
+    FLASH = {}
+    REP = None
+    END_EDIT, NF = 538, 538
+    END_MODE = "black"
+    DAMP_Z, DAMP_R, ZMAX, RMAX = 0.0, 0.0, 1.0, 0.0
+    OVERLAYS = [(0, 0, 130, 105), (455, 488, 576, 576), (140, 430, 436, 525)]
+    PLAIN = True
 else:
     from scenes import SCENES
     REF = os.path.join(FELIX, "media", "reference_mj.mp4")
     MEDIA = os.environ.get("EDIT_MEDIA", os.path.join(FELIX, "media"))
     OUT = os.path.join(OUTDIR, "Felix_MJ_Edit_v3.mp4")
-    SAFE = {
-        "clip2.mov": (220, 80, 1950, 1000), "clip3.mov": (520, 0, 2096, 1180), "clip4.mov": (0, 0, 2096, 900),
-        "clip5.mov": (0, 80, 1180, 1950), "clip6.mov": (290, 0, 2096, 1080), "clip7.mov": (290, 0, 2096, 1180),
-        "clip9.mov": (0, 0, 2096, 960), "clip10.mov": (0, 0, 2096, 1180), "clip12.mov": (0, 0, 2096, 1000),
-        "clip13.mov": (0, 0, 2096, 1020),
-    }
-    SAFE_SCENE = {"selfie": (150, 0, 1945, 1180)}
-    PATCHES = {"clip5.mov": [(64, 926, 162, 1170)]}
+    SAFE = FX_SAFE
+    SAFE_SCENE = FX_SAFE_SCENE
+    PATCHES = FX_PATCHES
     INTRO_END = 151                  # 0-150: Intro wie im Vorbild, aber mit Felix (Wunsch des Nutzers)
     # Vorbild-Intro: EIN Clip in Schwarz-Weiss, laeuft und friert auf den Schlaegen ein ("Video laedt"),
     # waehrend des Einfrierens die roten/tuerkisen Lade-Punkte in der Mitte (gemessen)
@@ -298,7 +338,8 @@ def ref_mask(w, h):
 
 
 # ------------------------------------------------------------------ Kamera: Zoom + Drehung aus dem Vorbild (gedaempft)
-REFP = {int(k): v for k, v in json.load(open(os.path.join(HERE, f"ref_camera_{EDIT}.json"))).items()}
+CAM_NAME = "spam" if EDIT.startswith("spam") else EDIT          # gleiche Vorbild-Kamera fuer spam/spamfelix
+REFP = {int(k): v for k, v in json.load(open(os.path.join(HERE, f"ref_camera_{CAM_NAME}.json"))).items()}
 
 
 def seg_of(f):
