@@ -35,6 +35,7 @@ EXPECTED = {
     "reference_spam.mp4": ("15a9ce3073b7f342a69cfbb75b482ddf", 21.967),   # Referenz 8 ("Spam my phone", Hyunjin)
     "reference_beggin.mp4": ("a88d074f648b84fb41262a5c9f3c04d4", 26.237),   # Referenz 9 (Beggin-Lyric-Edit, SKZ)
     "reference_mymoon.mov": ("2a7310c4737fda358f600d99199d4107", 20.538),   # Vorlage "my moon" (Lilie, Bildschirmaufnahme)
+    "reference_gta6.mp4": ("3ff963176e79cc46fb223b7cef3a4fc9", 15.325),     # Referenz 11 (GTA-VI-Edit, gezeichnete Figuren)
 }
 
 

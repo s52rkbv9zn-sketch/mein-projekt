@@ -547,3 +547,58 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Belichtung je Szene:** Gesichtshelligkeit per Gamma auf ~150 bringen, nicht per Verstärkung. Verstärkung brannte Felix' blonde Haare aus.
 * **Szenen:** 8 Stück, abwechselnd Felix/Hyunjin, Intro = ein Clip, Zeitlupe 0,5×, Schnitte auf den Schlägen (130, 209, 277, 344, 397, 471, 516).
   * Weiß-Blitze auf den drei stärksten Schlägen (397, 471, 516, je 14 Bilder) wie die Weiß-Teile der Vorlage.
+
+# Vorlage 11: GTA-VI-Edit (gezeichnete Figuren, VI-Logo, Kacheln), mit Hyunjin in `projects/gta-hyunjin`
+
+* **Vorlage:** TikTok-Export 1024×576, 30 fps, 15,3 s. Ab Bild 339 TikTok-Abspann, der wird nicht übernommen. Das Edit hat 339 Bilder (11,3 s), Ton aus der Vorlage, am Ende 0,35 s ausgeblendet.
+* **Ausgabe:** 1920×1080 (×1,875). Alle Messwerte sind in Vorbild-Pixeln (1024×576) und Bildnummern (fps=30, start_time=0).
+* **Hintergrund-Lila:** BGR (47,6 / 12,3 / 33,7), zu den Ecken leicht dunkler.
+* **Ablauf:**
+  * **0–12:** Einblenden aus Lila. Deckkraft je Bild: 0 / 0,017 / 0,027 / 0,048 / 0,096 / 0,16 / 0,26 / 0,35 / 0,47 / 0,62 / 0,79 / 0,96 / 1.
+  * **12–192, Teil 1–2:** schräger Himmelsstreifen zwischen zwei lila Bändern, darauf gezeichnete Figuren als Ebenen, jede mit eigener Bewegung.
+    * Oberkante des oberen Bandes y = b + m·x. Sie dreht sich von m = 0, b = 27 (Bild 0) zu m = −0,142, b = 219 (ab 111) und rutscht dann bis b = 269 (186).
+    * Der Streifen ist 552 px hoch (bei Zoom 1) und zoomt aus: Zoom 1,0 (12) → 0,84 (54) → 0,76 (90) → 0,62 (129) → 0,54 (144) → 0,48 (186).
+    * Der Himmel schwenkt hin und her (±60–80 px, gemessen mit optischem Fluss).
+  * **Figuren** (Gesichtsmitte und -höhe aus YuNet, `analyse/messwerte/faces_dense.json`):
+    * A groß: Gesicht 176/113/235 (Bild 12) → 393/100/210 (36) → 315/152/192 (72) → 528/191/169 (120) → 339/210/140 (150) → 552/225/119 (ab 183).
+    * B kommt ab ~50 von rechts, bremst bis 858/105 (75), dann leicht nach rechts. Ab ~125 nach rechts hinaus (wird von D überdeckt).
+    * C kommt ab ~85 von links mit ~21 px pro Bild, steht 381/126/195 bei 120, dann 200/143/169 (150), dann 477/176/145 (ab 186).
+    * Nahaufnahme D kommt 126–150 von rechts (1150 → 706), dann nach rechts bis 886/210/~294 (ab 186).
+    * Nahaufnahme E kommt 158–184 von links (−110 → 240), Gesicht 240/389/242.
+    * Reihenfolge von hinten nach vorne: B, A, C, D, E.
+  * **192–232, VI-Fenster:** Alles außerhalb einer VI-förmigen Maske wird lila. Maßstab ln s = 0,894 − 0,0377·(t − 202), also s ≈ 3,6 (192) → 1,8 (210) → 1,07 (224), danach weich auf 1,01 (232). Mitte etwa (481, 308), am Ende (501, 297).
+  * **196–233, Logo wächst:** Logo-Maßstab 0,067 (196) → 0,10 (200) → 0,28 (210) → 0,54 (220) → 0,82 (228) → 1,0 (233). Mitte (523, 297) → (501, 297). Ab 233 ist nur noch das Logo zu sehen.
+  * **235–246, Logo ausblenden:** Deckkraft 1 / 0,9 / 0,81 / 0,71 / 0,62 / 0,52 / 0,41 / 0,33 / 0,25 / 0,17 / 0,09 / 0,04 / 0.
+  * **250–318, Teil 3, Himmels-Keil:** Fläche unter der Geraden y = 0,384·x + b. Werte für b:
+    * 575 (250), 513 (258), 390 (270), 214 (282), 107 (290)
+    * 17 (300), −27 (310), −35,8 (ab 316)
+    * Die Bewegung ist weich (ease in/out).
+    * A gleitet davor von links herein: Gesichtsmitte x −45 (272) → 30 (276) → 183 (288) → 318 (300) → 400 (312), y 186, Höhe 218.
+  * **299–334, drei Kacheln:** links x 0–337, Mitte 337–685, rechts 685–1024. Sie sind etwa 19 px höher als das Bild, damit am Ende kein Rand bleibt.
+    * Gemeinsame Bewegungskurve über 19 Bilder (gemessen an der B-Kachel): 0 / 0,032 / 0,069 / 0,118 / 0,178 / 0,254 / 0,341 / 0,435 / 0,533 / 0,630 / 0,715 / 0,796 / 0,856 / 0,905 / 0,944 / 0,974 / 0,989 / 0,997 / 0,999 / 1.
+    * Links: von unten ab Bild 299. Oberkante 576 → −18,5, Gesicht 97 px unter der Oberkante, Höhe 127.
+    * Mitte: von oben ab Bild 308,5. Unterkante 0 → 595, Gesicht 503 px über der Unterkante, Höhe 116.
+    * Rechts: von unten ab Bild 316,1. Gesicht 225 px unter der Oberkante, Höhe 192.
+  * **330–338, Ausblenden nach Lila:** Deckkraft 0,92 / 0,71 / 0,48 / 0,32 / 0,18 / 0,11 / 0,03 / 0,01 / 0.
+* **Umsetzung mit 5 Fotos des Nutzers:**
+  * Freistellen per GrabCut mit nachgezeichneten Umrissen (Haare sauber).
+  * Doppelte Auflösung, dann GTA-Ladebild-Stil (`prep.py`):
+    * Bilateral-Filter und 20 Farben aus der Figur (62 % flach + 38 % weich)
+    * Tusche-Linien
+    * Lichter warm, Schatten nur leicht lila
+    * Sättigung ×1,25, Gamma 0,82
+    * dunkle Kontur (BGR 34/10/22)
+  * **Wichtig:** Ohne Sättigung/Gamma wirkten die Figuren grau und kalt gegen das warme Vorbild.
+  * Am Fotorand abgeschnittene Körper werden weitergeführt:
+    * Silhouette an der Seite wie eine Schulter (bis 0,22 Gesichtshöhen), nach unten gerade
+    * Farbe per Inpainting, weit weg vom Rand stark weichgezeichnet und abgedunkelt
+    * In Kacheln muss das Foto trotzdem bis unter die Kachel reichen (`MIN_H`).
+  * Fotos je Rolle: A→A, B→B, C→C, D→D, Nahaufnahme E→B (rote Brille), Teil 3→A, Kacheln: links E, Mitte C, rechts D.
+    * Das Foto mit zurückgelegtem Kopf (E) taugt nicht als große Nahaufnahme: Man sieht die Nasenlöcher.
+  * Gesichtslage und -größe je Rolle mit `calibrate.py` angleichen: Gesichter im fertigen Bild suchen wie beim Vorbild, zwei Durchgänge, `role_corr.json`. Die YuNet-Kästen sind je Foto verschieden groß (bis 20 %).
+  * Hintergründe gemalt:
+    * Verlauf aus Vorbild-Farbproben
+    * weiche Wolkenstreifen
+    * Kokospalmen als Silhouette: gebogener Stamm, ~12 Wedel aus spitzen, hängenden Fiederblättchen, 4-fach Unterabtastung
+    * Möwen
+  * Logo aus Bild 233/234 freigestellt und ×1,875 vergrößert (`logo.py`). Der VI-Umriss dient als Vieleck für das Fenster.
