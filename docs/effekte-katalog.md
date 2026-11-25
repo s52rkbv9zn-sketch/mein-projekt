@@ -602,3 +602,32 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
     * Kokospalmen als Silhouette: gebogener Stamm, ~12 Wedel aus spitzen, hängenden Fiederblättchen, 4-fach Unterabtastung
     * Möwen
   * Logo aus Bild 233/234 freigestellt und ×1,875 vergrößert (`logo.py`). Der VI-Umriss dient als Vieleck für das Fenster.
+
+## Vorlage 11, Version 2 (Feedback: „unsauber ausgeschnitten, wackelt viel zu doll“)
+
+* **Wackeln:** Die Gesichtsmessung im Vorbild schwankt von Bild zu Bild (Periode 5–7 Bilder, ±2 px).
+  * Mit Gauß σ = 1,2 blieb das als Schwimmen und „Atmen“ (Größe) im Edit.
+  * Die Animation im Vorbild ist von Hand gesetzt und vollkommen glatt.
+  * **Lösung:** Jede Spur als Ausgleichs-Spline anlegen (kubisch, Knoten alle 9 Bilder für x/y, alle 24 für die Größe; `build_data.py: spline_fit`).
+  * Prüfen: Die Geschwindigkeit je Bild muss zwischen den Wendepunkten gleichmäßig steigen oder fallen.
+* **Freistellen per KI:** RobustVideoMatting ResNet50 (ONNX, onnxruntime ist installiert; Modell aus den GitHub-Releases), `matte.py`.
+  * Standbild 6× durchschicken, damit sich der innere Zustand einschwingt.
+  * Haare einzeln, auch vor dunklem Hintergrund.
+  * Kombiniert mit den alten Umriss-Vielecken: als Grenze, und um innere Lücken zu füllen (heller Mantel war halb durchsichtig).
+  * Feste Zusatzflächen, wo die KI Kleidung für Hintergrund hält (roter Mantel vor rotem Stuhl).
+* **Ränder:**
+  * Kantenfarbe aus der KI-Vordergrundschätzung, dann Innenfarbe in den Saum ziehen.
+  * Roten Schimmer vom Hintergrund im Haarsaum herausnehmen (Rot ≤ 1,15·max(Blau, Grün) + 10).
+  * Rand straffen: Smoothstep 0,28–0,72, sonst wirken die Haarspitzen vor dem Himmel wie Dunst.
+  * Dünne dunkle Kontur hinter der Figur.
+* **Malstil ohne Flecken:**
+  * Kantenerhaltende Glättung (`edgePreservingFilter`, σs = 22·s, σr = 0,16) plus 55 % Feindetail.
+  * Dünne XDoG-Linien, warme Lichter, Sättigung ×1,18, Gamma 0,88.
+  * Die 20-Farben-Stufen (k-means) erzeugten fleckige Haut und Kleidung. Nicht mehr verwenden.
+* **Keine verschmierten Körperverlängerungen:**
+  * Die Fotos sind den Rollen so zugeteilt, dass der untere Fotorand außerhalb liegt: A groß, Foto E als B, C, D, Foto B als Nahaufnahme E, Teil 3 A, Kacheln E/C/D.
+  * In den Kacheln Mindestgröße (`MIN_H`).
+  * Seitlich abgeschnittene Kleidung oder Arme werden gespiegelt weitergeführt: Stoff bleibt scharf, glatte Kante, leicht abgedunkelt. Das betrifft A rechts, D links, E links.
+* **Abgleich der Gesichter:** YuNet liefert bei großen Nahaufnahmen zwei verschiedene Kästen (Stirn oder Kinn).
+  * Deshalb pro Durchgang höchstens ±8 % Größe und ±0,05 Gesichtshöhen Versatz.
+  * Die große Nahaufnahme D wird nicht nachgeführt (Werte aus dem Sichtvergleich).

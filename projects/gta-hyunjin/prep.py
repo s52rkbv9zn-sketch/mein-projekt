@@ -20,6 +20,7 @@ import cv2
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "edit-toolkit"))
+sys.path.insert(0, HERE)
 
 KEYS = "ABCDE"
 UP = 2.0                       # Fotos auf doppelte Groesse (Linien werden in der Endgroesse scharf gezeichnet)
@@ -362,7 +363,14 @@ def main():
             m = cv2.imread(mp, 0) if os.path.exists(mp) else mask_from_json(k)
             fs = ft.detect(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), max_side=1600)
             cx, cy, fw, fh, sc = max(fs, key=lambda f: f[4])
-            rgba, face = make_figure(img, m, (cx, cy, fh))
+            mat = os.environ.get("MATTE")                    # Ordner mit K_alpha.png / K_fgr.png aus matte.py
+            if mat:
+                import figures
+                ra = cv2.imread(os.path.join(mat, f"{k}_alpha.png"), 0)
+                rf = cv2.imread(os.path.join(mat, f"{k}_fgr.png"))
+                rgba, face = figures.make_figure(k, img, ra, rf, m, (cx, cy, fh))
+            else:
+                rgba, face = make_figure(img, m, (cx, cy, fh))
             cv2.imwrite(os.path.join(out, f"{k}.png"), rgba)
             faces[k] = [round(float(v), 1) for v in face]
             print("Figur", k, rgba.shape, "Gesicht", faces[k], flush=True)

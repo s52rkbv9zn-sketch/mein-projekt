@@ -16,6 +16,9 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "..", "edit-toolkit"))
 from face_track import FaceTracker
 
+# Grosse Nahaufnahme D: YuNet liefert dort zwei verschiedene Kaesten (Stirn/Kinn) -> Werte von Hand festgelegt
+# (Sichtvergleich mit dem Vorbild), nicht automatisch nachfuehren.
+FROZEN = {"D1"}
 CHECKS = dict(A1=[24, 48, 72, 96, 120, 150], B1=[72, 84, 96, 105], C1=[105, 120, 150, 186], D1=[150, 170, 190],
               E1=[180, 190, 200], A3=[290, 300, 310], BP=[318, 326], CP=[326, 330], RP=[330, 334])
 
@@ -43,10 +46,17 @@ def run_once(ft):
         if not ms:
             report[role] = None
             continue
+        ms = [v for v in ms if 0.7 < v[2] < 1.4]                       # unplausible Kaesten weg
+        if not ms or role in FROZEN:
+            report[role] = None
+            continue
         m = np.median(np.array(ms), 0)
         ox, oy, f = corr.get(role, (0.0, 0.0, 1.0))
         h = m[3]
-        corr[role] = [float(ox + m[0] / (h * f)), float(oy + m[1] / (h * f)), float(f / m[2])]
+        # je Durchgang nur behutsam nachfuehren (Gesichtskaesten schwanken bei grossen Gesichtern stark)
+        dxr = float(np.clip(m[0] / (h * f), -0.05, 0.05))
+        dyr = float(np.clip(m[1] / (h * f), -0.05, 0.05))
+        corr[role] = [float(ox + dxr), float(oy + dyr), float(f / np.clip(m[2], 0.92, 1.08))]
         report[role] = [round(float(v), 3) for v in m[:3]]
     return corr, report
 

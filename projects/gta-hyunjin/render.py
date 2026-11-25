@@ -30,9 +30,9 @@ SK = W / 1920.0                       # Bild-Pixel der Hintergruende (fuer 1920 
 D = json.load(open(os.path.join(HERE, "ref_data.json")))
 NF = D["nf"]
 PUR_C = np.array([49.5, 12.5, 34.2], np.float32)
-ROLE_ASSET = dict(A1="A", B1="B", C1="C", D1="D", E1="B", A3="A", BP="E", CP="C", RP="D")
+ROLE_ASSET = dict(A1="A", B1="E", C1="C", D1="D", E1="B", A3="A", BP="E", CP="C", RP="D")
 # In den Kacheln muss das Foto bis unter die Kachel reichen (sonst sieht man die weitergefuehrte Koerperflaeche):
-MIN_H = dict(CP=192.0)
+MIN_H = dict(CP=192.0, BP=160.0, RP=210.0)
 # Feinabgleich je Rolle (calibrate.py): Gesicht im fertigen Bild genau auf die Spur des Vorbilds.
 # [ox, oy, f]: Versatz in Gesichtshoehen und Groessenfaktor
 _cp = os.path.join(HERE, "role_corr.json")

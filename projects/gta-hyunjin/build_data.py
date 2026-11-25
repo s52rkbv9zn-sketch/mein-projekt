@@ -55,7 +55,21 @@ def follow(d, start_t, start, t_end, max_d=0.35, size_rng=(0.8, 1.25), ok=lambda
     return out
 
 
-def role(raw, pre=None, post=None, t0=0, t1=NF - 1, sx=1.2, sh=2.5, fixed_h=None):
+def spline_fit(samples, t0, t1, step):
+    """Ausgleichs-Spline (kubisch, Knoten alle `step` Bilder) durch die Messpunkte -> glatte Kurve ohne
+    das Zittern der Gesichtssuche, die Bewegungsform (Anlauf/Abbremsen) bleibt."""
+    from scipy.interpolate import LSQUnivariateSpline
+    ts = np.array(sorted(samples), float)
+    vs = np.array([samples[int(t)] for t in ts], float)
+    if len(ts) < 8:
+        return series(samples, t0, t1, 0.0)
+    knots = np.arange(ts[0] + step, ts[-1] - step / 2, step)
+    f = LSQUnivariateSpline(ts, vs, knots, k=3)
+    tt = np.arange(t0, t1 + 1)
+    return {int(t): float(f(np.clip(t, ts[0], ts[-1]))) for t in tt}
+
+
+def role(raw, pre=None, post=None, t0=0, t1=NF - 1, sx=1.2, sh=2.5, fixed_h=None, kx=9, kh=24):
     """raw {t: (x,y,h)} plus Formeln vor/nach dem gemessenen Bereich -> {t: [x,y,h]}"""
     xs, ys, hs = {}, {}, {}
     ta, tb = min(raw), max(raw)
@@ -69,7 +83,7 @@ def role(raw, pre=None, post=None, t0=0, t1=NF - 1, sx=1.2, sh=2.5, fixed_h=None
         else:
             continue
         xs[t], ys[t], hs[t] = v
-    X, Y, Hh = series(xs, t0, t1, sx), series(ys, t0, t1, sx), series(hs, t0, t1, sh)
+    X, Y, Hh = spline_fit(xs, t0, t1, kx), spline_fit(ys, t0, t1, kx), spline_fit(hs, t0, t1, kh)
     return {t: [X[t], Y[t], fixed_h if fixed_h else Hh[t]] for t in range(t0, t1 + 1)}
 
 
@@ -103,7 +117,7 @@ def main():
     dy = {124: 205, 135: 205, 150: 196, 165: 203, 180: 210, 190: 210, 232: 210}
     dh = {124: 318, 150: 316, 165: 305, 180: 296, 190: 294, 232: 294}
     X, Y, Hh = pchip(dx, 124, 232), pchip(dy, 124, 232), pchip(dh, 124, 232)
-    Xs = series(X, 124, 232, 1.0)
+    Xs = spline_fit({t: X[t] for t in range(124, 233)}, 124, 232, 9)
     R["D1"] = {t: [Xs[t], Y[t], Hh[t]] for t in range(124, 233)}
     e1 = follow(d, 168, (66, 419, 235), 199, size_rng=(0.85, 1.18), ok=lambda t, f: f[1] > 330)
     R["E1"] = role(e1, pre=lambda t: [65 + 26 * (t - 168), 419 + 4.5 * (168 - t), 242], post=lambda t, last: last,
@@ -136,7 +150,7 @@ def main():
     sx[0] = sx[10] - 2.0 * 10
     s165 = sx[165]
     sx.update({175: s165 + 50, 186: s165 + 80, 196: s165 + 88, 232: s165 + 88})
-    xc = series(sx, 0, 232, 2.0)
+    xc = spline_fit(series(sx, 0, 232, 0.0), 0, 232, 12)
     card = {t: dict(m=m[t], b=b[t], k=k[t], xc=512 + xc[t]) for t in range(0, 233)}
     # --- VI-Fenster und Logo
     w2 = {int(t): v for t, v in json.load(open(f"{M}/vifit2.json")).items()}
