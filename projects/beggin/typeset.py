@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 _TK = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "edit-toolkit")
 FONTS = {
-    "heros":      "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheros-regular.otf",
+    "heros":      os.path.join(_TK, "texgyreheros-regular.otf"),          # Helvetica (GUST-Lizenz) - im edit-toolkit
     "heros_cn":   "/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheroscn-regular.otf",
     "nimbus":     "/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf",
     # schmale Helvetica wie im Vorbild (URW, AGPL mit Font-Ausnahme) - liegt im edit-toolkit

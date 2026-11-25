@@ -516,3 +516,34 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Jedes Wort einmal in Ausgabegröße rendern (PIL, Kantenglättung) und auf den sichtbaren Teil zuschneiden (weiche Kante 0,6 px).
   * Mit der gemessenen Bewegung der Textebene (`text_drift.npz`) verschieben.
   * Für `render.py` reichen `words_fit.json`, `text_drift.npz` und `ref_state.json` (Flacker-Zustand und Abblende je Bild). Die großen Masken braucht man nur zum Neu-Anpassen.
+
+# Vorlage 10: „my moon“ (TikTok mit schwarz-weißer Lilie), mit Hyunjin und Felix in `projects/mymoon`
+
+* **Vorlage:** Bildschirmaufnahme der TikTok-App (Hochformat 1180×2556). Das Video liegt bei x 0–1180, y 737–1570, Seitenverhältnis 1,417.
+* **Ausgabe:** 1440×1016, 30 fps, 616 Bilder (20,5 s). Ton aus der Aufnahme, auf −14 LUFS, am Ende 0,7 s ausgeblendet.
+* **Licht** (`light.json`, Bild für Bild gemessen):
+  * 0–5 dunkelgrau
+  * 6–18 schwarz, Lilie blendet ein (Helligkeit 0,2 → 0,5)
+  * 19–34 Grau-Rampe 128 → 225
+  * 35–49 schwarz
+  * 51–64 weiß
+  * 65–73 schwarz
+  * 74–123 weiß
+  * ab 124 schwarz
+  * Die Wechsel liegen auf den Schlägen (Bild 20, 36, 51, 66, 81). Nach 4,3 s bleibt die Vorlage stehen, die Musik läuft weiter.
+  * Ausblenden 575–615.
+* **Text links** (`text_fit.json`): Helvetica (TeX Gyre Heros), leicht schmal (Streckung 0,84–0,96).
+  * 9–73 graue Punkte „…“: Helligkeit 26 → 53, der rechte Punkt kommt zuerst.
+  * 74–78 kleine schwarze Punkte
+  * 79–92 „my“
+  * 93–108 „my / moon“
+  * 109–121 „my / moon, / my“ (kleiner)
+  * ab 127 weiße Punkte
+  * In der Vorlage liegt Staub auf den Buchstaben (weiße Flecken, dunkle Punkte daneben). Nachgebildet, leicht.
+* **Umsetzung Wunsch „Blume weg, Hyunjin und Felix“:**
+  * Die Personen stehen in kontrastreichem Schwarz-Weiß rechts, wo die Lilie war (Gesicht bei 70 % Breite, 40 % Höhe, 30 % Bildhöhe).
+  * Sie stehen in einem weichen Lichtkegel um Kopf und Schultern, der links in den Hintergrund übergeht (schwarz oder bei Blitzen weiß).
+  * Freistellen per Personen-Erkennung ging nicht: Ein Zusatzpaket zu installieren war nicht erlaubt.
+* **Belichtung je Szene:** Gesichtshelligkeit per Gamma auf ~150 bringen, nicht per Verstärkung. Verstärkung brannte Felix' blonde Haare aus.
+* **Szenen:** 8 Stück, abwechselnd Felix/Hyunjin, Intro = ein Clip, Zeitlupe 0,5×, Schnitte auf den Schlägen (130, 209, 277, 344, 397, 471, 516).
+  * Weiß-Blitze auf den drei stärksten Schlägen (397, 471, 516, je 14 Bilder) wie die Weiß-Teile der Vorlage.
