@@ -358,7 +358,10 @@ def main():
         fj = os.path.join(out, "faces.json")
         faces = json.load(open(fj)) if os.path.exists(fj) else {}
         keys = os.environ.get("KEYS", KEYS)
-        for k in (keys.split(",") if "," in keys else list(keys)):
+        toks = keys.split(",")
+        if len(toks) == 1 and toks[0].isalpha() and toks[0].isupper():
+            toks = list(toks[0])                             # alte Schreibweise "ABCDE"
+        for k in toks:
             img = cv2.imread(os.path.join(src, f"{k}.jpg"))
             mp = os.path.join(msk, f"{k}_mask.png")
             if os.path.exists(mp):

@@ -631,3 +631,24 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
 * **Abgleich der Gesichter:** YuNet liefert bei großen Nahaufnahmen zwei verschiedene Kästen (Stirn oder Kinn).
   * Deshalb pro Durchgang höchstens ±8 % Größe und ±0,05 Gesichtshöhen Versatz.
   * Die große Nahaufnahme D wird nicht nachgeführt (Werte aus dem Sichtvergleich).
+
+## Vorlage 11, Version 3 (neue Fotos vom Nutzer)
+
+* **Feedback zu v2:** Der gespiegelte Arm wirkte doppelt. Fotos mit nach hinten gekipptem Kopf oder rotem Licht im Gesicht wirkten unnatürlich. → Ich habe um bessere Fotos gebeten (siehe unten).
+* **Bitte an den Nutzer, die funktioniert hat:**
+  * Oberkörper bis zur Hüfte, Arme ganz im Bild
+  * ruhiger Hintergrund, normales Licht
+  * Gesicht gerade, große Originalbilder
+  * 5–8 Stück
+* **Wasserzeichen** (JYP, „dazzling days“, „Elaine“, „vivacious“, Unterschrift) mit `clean_photos.py` entfernen:
+  * Suchkasten je Foto, Schrift über Helligkeit bzw. Abweichung vom Median erkennen, dann Inpainting.
+  * Auf Rippstoff: grobe Schattierung per Inpainting, feine Stoffstruktur 66 px von oben kopiert. Reines Inpainting gab einen verschmierten Fleck, reines Stempeln Geisterbilder.
+* **Rollen:** P1 Sport-Top (A, Teil 3), P5 Sonnenbrille (B, linke Kachel), P4 „IT TAPE“, ganzer Oberkörper (C, mittlere Kachel), P3 blond (Nahaufnahme D), P2 Weste gespiegelt (Nahaufnahme E) und ungespiegelt (rechte Kachel).
+  * Spiegeln nur ganzer Fotos, nie Körperteile.
+  * Der untere Fotorand liegt immer unter dem Bild: Die Größe wird bei Bedarf angehoben (`render.py: track`).
+* **Schwarzer Hintergrund hinter schwarzen Haaren/Shirt (P1):**
+  * Lücken zwischen Arm und Körper schließen (`FILL_HOLES`). Sonst entsteht vor dem hellen Himmel eine wellige Öffnung.
+  * Haarrand weich lassen (`SOFT_EDGE`, Matte^0,85, ohne Straffung). Hart gestrafft sah es aus wie ein Helm.
+  * Keine Kontur, wo der Rand weich ist.
+* **Ablauf mit dem Nutzer:** Erst ein Vorschaubild schicken (Ausschnitte plus 4 Stellen aus dem Video), dann rendern.
+  * Der Nutzer zoomt in die Vorschau und zeigt einzelne Stellen.

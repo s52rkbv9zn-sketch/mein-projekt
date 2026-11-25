@@ -19,6 +19,10 @@ EXTEND = dict(A=("R",), D=("L",), E=("L",))
 ADD = dict(B=[[(0, 1088), (45, 1066), (95, 1036), (132, 1012), (152, 1002), (152, 1574), (0, 1574)]])
 # Farbschimmer vom Hintergrund am Rand (Foto B: rotes Licht vom Stuhl auf den Haaren) im Kopfbereich herausnehmen
 DESPILL = dict(B=dict(y_max=990, band=34), P5=dict(y_max=720, band=30))
+# Fotos mit schwarzem Hintergrund (schwarze Haare/Shirt davor): Luecken zwischen Arm und Koerper schliessen
+# (sonst wellige Ausschnitt-Kante vor hellem Himmel) und Haarrand weich lassen (kein harter "Helm")
+FILL_HOLES = {"P1"}
+SOFT_EDGE = {"P1"}
 
 
 def ell(n):
@@ -107,6 +111,9 @@ def outline(col, a, s):
     r = max(1, int(round(1.6 * s)))
     ring = (cv2.dilate(solid, ell(2 * r + 1)) - solid).astype(np.float32)
     ring = cv2.GaussianBlur(ring, (0, 0), 0.6 * s) * 0.75
+    # keine Kontur, wo der Rand weich ist (Haare): dort wuerde sie als Strich durch die Haarspitzen laufen
+    soft = ((a > 0.04) & (a < 0.96)).astype(np.float32)
+    ring *= 1 - np.clip(cv2.blur(soft, (int(6 * s) | 1, int(6 * s) | 1)) * 3.0, 0, 1)
     dark = np.array([34, 10, 22], np.float32)
     colf = col.astype(np.float32)
     # Kontur unter die Figur legen: Figur ueber Kontur
@@ -118,6 +125,17 @@ def outline(col, a, s):
 def make_figure(key, photo, rvm_alpha, rvm_fgr, old_mask, face):
     """face = (cx, cy, h) im Foto -> RGBA (2x, ggf. seitlich verlaengert) und Gesicht in diesen Pixeln"""
     a = combine_alpha(key, rvm_alpha, old_mask)
+    if key in FILL_HOLES:
+        # Hintergrundflaechen, die oben/links/rechts nicht an den Fotorand stossen (z. B. zwischen Arm und Koerper),
+        # gehoeren zur Figur (dunkler Schatten statt Himmel durch eine wellige Luecke)
+        bg = (a < 0.5).astype(np.uint8)
+        n, lab, stats, _ = cv2.connectedComponentsWithStats(bg, 4)
+        H0, W0 = a.shape
+        for i in range(1, n):
+            x, y, w, h, area = stats[i]
+            if y > 0 and x > 0 and x + w < W0:
+                a = np.where(lab == i, 1.0, a)
+        a = cv2.GaussianBlur(a.astype(np.float32), (0, 0), 0.7)
     col = edge_colors(photo, rvm_fgr, a)
     ds = DESPILL.get(key)
     if ds:
@@ -139,8 +157,11 @@ def make_figure(key, photo, rvm_alpha, rvm_fgr, old_mask, face):
     s = UP * max(h, w) / 1300.0
     # Rand straffen: weicher Dunst an Haarspitzen wirkt vor dem Himmel schmutzig -> klare, glatte Kante
     ab = cv2.GaussianBlur(ab.astype(np.float32), (0, 0), 0.8)
-    t = np.clip((ab - 0.28) / 0.44, 0, 1)
-    ab = t * t * (3 - 2 * t)
+    if key in SOFT_EDGE:
+        ab = np.clip(ab, 0, 1) ** 0.85                                  # weicher Haarrand, leicht deckender
+    else:
+        t = np.clip((ab - 0.28) / 0.44, 0, 1)
+        ab = t * t * (3 - 2 * t)
     col2 = paint(big, s)
     col3, a3 = outline(col2, ab, s)
     return np.dstack([col3, (a3 * 255).clip(0, 255).astype(np.uint8)]), (fx, fy, fh)
