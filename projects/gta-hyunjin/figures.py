@@ -18,7 +18,7 @@ UP = 2.0
 EXTEND = dict(A=("R",), D=("L",), E=("L",))
 ADD = dict(B=[[(0, 1088), (45, 1066), (95, 1036), (132, 1012), (152, 1002), (152, 1574), (0, 1574)]])
 # Farbschimmer vom Hintergrund am Rand (Foto B: rotes Licht vom Stuhl auf den Haaren) im Kopfbereich herausnehmen
-DESPILL = dict(B=dict(y_max=990, band=34))
+DESPILL = dict(B=dict(y_max=990, band=34), P5=dict(y_max=720, band=30))
 
 
 def ell(n):

@@ -18,7 +18,7 @@ from face_track import FaceTracker
 
 # Grosse Nahaufnahme D: YuNet liefert dort zwei verschiedene Kaesten (Stirn/Kinn) -> Werte von Hand festgelegt
 # (Sichtvergleich mit dem Vorbild), nicht automatisch nachfuehren.
-FROZEN = {"D1"}
+FROZEN = set()
 CHECKS = dict(A1=[24, 48, 72, 96, 120, 150], B1=[72, 84, 96, 105], C1=[105, 120, 150, 186], D1=[150, 170, 190],
               E1=[180, 190, 200], A3=[290, 300, 310], BP=[318, 326], CP=[326, 330], RP=[330, 334])
 

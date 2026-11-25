@@ -30,9 +30,13 @@ SK = W / 1920.0                       # Bild-Pixel der Hintergruende (fuer 1920 
 D = json.load(open(os.path.join(HERE, "ref_data.json")))
 NF = D["nf"]
 PUR_C = np.array([49.5, 12.5, 34.2], np.float32)
-ROLE_ASSET = dict(A1="A", B1="E", C1="C", D1="D", E1="B", A3="A", BP="E", CP="C", RP="D")
+# Fotos v3 (vom Nutzer nachgeliefert, bessere Bilder): P1 Sport-Top, P2 Weste, P3 blond/weisse Jacke,
+# P4 Buehne "IT TAPE" (ganzer Oberkoerper), P5 Sonnenbrille. So verteilt, dass kein Fotorand im Bild liegt.
+ROLE_ASSET = dict(A1="P1", B1="P5", C1="P4", D1="P3", E1="P2", A3="P1", BP="P5", CP="P4", RP="P2")
+ROLE_MIRROR = {"E1"}          # P2 gespiegelt: dann liegt sein abgeschnittener Arm ausserhalb (links unten)
+PANEL_ROLES = {"BP", "CP", "RP"}
 # In den Kacheln muss das Foto bis unter die Kachel reichen (sonst sieht man die weitergefuehrte Koerperflaeche):
-MIN_H = dict(CP=192.0, BP=160.0, RP=210.0)
+MIN_H = dict(CP=146.0, BP=150.0, RP=190.0)
 # Feinabgleich je Rolle (calibrate.py): Gesicht im fertigen Bild genau auf die Spur des Vorbilds.
 # [ox, oy, f]: Versatz in Gesichtshoehen und Groessenfaktor
 _cp = os.path.join(HERE, "role_corr.json")
@@ -76,19 +80,33 @@ def over(dst, rgb_pm, a):
 class Figures:
     def __init__(self):
         faces = json.load(open(os.path.join(ASSETS, "faces.json")))
-        self.f = {k: np.array(v, np.float64) for k, v in faces.items()}
-        self.lv = {k: premul_pyramid(cv2.imread(os.path.join(ASSETS, f"{k}.png"), cv2.IMREAD_UNCHANGED)) for k in "ABCDE"}
+        used = set(ROLE_ASSET.values())
+        self.f = {k: np.array(v, np.float64) for k, v in faces.items() if k in used}
+        self.lv, self.lvm, self.size = {}, {}, {}
+        for k in self.f:
+            im = cv2.imread(os.path.join(ASSETS, f"{k}.png"), cv2.IMREAD_UNCHANGED)
+            self.size[k] = im.shape[1], im.shape[0]
+            self.lv[k] = premul_pyramid(im)
+            if any(ROLE_ASSET[r] == k for r in ROLE_MIRROR):
+                self.lvm[k] = premul_pyramid(np.ascontiguousarray(im[:, ::-1]))
 
-    def layer(self, key, x, y, h):
+    def bottom_extent(self, key):
+        """Abstand Gesichtsmitte -> unterer Fotorand in Gesichtshoehen"""
+        fx, fy, fh = self.f[key]
+        return (self.size[key][1] - fy) / fh
+
+    def layer(self, key, x, y, h, mirror=False):
         """Figur key so legen, dass ihr Gesicht bei (x, y) [Vorbild-Pixel] mit Hoehe h liegt"""
         fx, fy, fh = self.f[key]
+        if mirror:
+            fx = self.size[key][0] - fx
         s = h * KX / fh
         X, Y = x * KX, y * KX
 
         def M(lv):
             sl = s / lv
             return np.array([[sl, 0, X - sl * fx * lv], [0, sl, Y - sl * fy * lv]], np.float32)
-        return warp_layer(self.lv[key], s, M)
+        return warp_layer(self.lvm[key] if mirror else self.lv[key], s, M)
 
 
 def purple_bg():
@@ -151,13 +169,18 @@ class Scene:
         x, y, h = tr
         ox, oy, f = ROLE_CORR.get(role, (0.0, 0.0, 1.0))
         f = max(f, MIN_H.get(role, 0.0) / h)
-        return x - ox * h * f, y - oy * h * f, h * f
+        x, y, h = x - ox * h * f, y - oy * h * f, h * f
+        if role not in PANEL_ROLES:
+            # unterer Fotorand muss unter dem Bildrand liegen (sonst sieht man, wo das Foto aufhoert)
+            kb = self.fig.bottom_extent(ROLE_ASSET[role])
+            h = max(h, (584.0 - y) / kb)
+        return x, y, h
 
     def person(self, role, t, out, clip=None):
         tr = self.track(role, t)
         if tr is None:
             return
-        rgb, a = self.fig.layer(ROLE_ASSET[role], *tr)
+        rgb, a = self.fig.layer(ROLE_ASSET[role], *tr, mirror=role in ROLE_MIRROR)
         if clip is not None:
             rgb = rgb * clip[..., None]
             a = a * clip

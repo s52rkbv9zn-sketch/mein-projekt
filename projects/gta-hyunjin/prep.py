@@ -357,10 +357,16 @@ def main():
         ft = FaceTracker(score=0.5)
         fj = os.path.join(out, "faces.json")
         faces = json.load(open(fj)) if os.path.exists(fj) else {}
-        for k in os.environ.get("KEYS", KEYS):
+        keys = os.environ.get("KEYS", KEYS)
+        for k in (keys.split(",") if "," in keys else list(keys)):
             img = cv2.imread(os.path.join(src, f"{k}.jpg"))
             mp = os.path.join(msk, f"{k}_mask.png")
-            m = cv2.imread(mp, 0) if os.path.exists(mp) else mask_from_json(k)
+            if os.path.exists(mp):
+                m = cv2.imread(mp, 0)
+            elif k in json.load(open(os.path.join(HERE, "masken.json"))):
+                m = mask_from_json(k)
+            else:                                            # neue Fotos: nur die KI-Matte (keine Vielecke noetig)
+                m = (cv2.imread(os.path.join(os.environ["MATTE"], f"{k}_alpha.png"), 0) > 128).astype(np.uint8) * 255
             fs = ft.detect(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), max_side=1600)
             cx, cy, fw, fh, sc = max(fs, key=lambda f: f[4])
             mat = os.environ.get("MATTE")                    # Ordner mit K_alpha.png / K_fgr.png aus matte.py
