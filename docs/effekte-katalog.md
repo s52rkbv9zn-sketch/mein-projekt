@@ -652,3 +652,22 @@ Teal-Clip (226–238): heller High-Key-Look (`teal_look.py`) passend zum Kreis.
   * Keine Kontur, wo der Rand weich ist.
 * **Ablauf mit dem Nutzer:** Erst ein Vorschaubild schicken (Ausschnitte plus 4 Stellen aus dem Video), dann rendern.
   * Der Nutzer zoomt in die Vorschau und zeigt einzelne Stellen.
+
+## Vorlage 11, Version 4 (Feedback: „flüssiger und mehr gezeichnet wie GTA“, dann „der Anfang hängt“)
+
+* **Gezeichneter Stil** (`figures.py: gta_paint`):
+  * Hautton per Lab-Verschiebung auf den des Vorbilds (L 174, a 154, b 158,5; nur Hautpixel, weich gewichtet, L zu 50 %).
+  * Bilateral 2× plus `edgePreservingFilter` (σs = 32·s).
+  * Weiche Tonstufen: 5 Stufen, Sigmoid-Kanten, 55 % beigemischt.
+  * Klarheit +35 %, Sättigung ×1,15, XDoG-Linien (75 %).
+  * Leichte schräge Pinselstruktur (2 %), S-Kurve 30 %.
+  * `STYLE=foto` gibt den alten Stil.
+* **60 Bilder/s:** `render.py` liest jede Tabelle über `at(table, t)` (linear zwischen den Bildern). Die Zwischenbilder sind echt berechnet, weil alles Kurven sind. Ausgabe mit `-r 60`.
+* **„Der Anfang hängt“:**
+  * Im Vorbild fährt die Kamera am Anfang zurück: A wird zwischen Bild 18 und 36 etwa 12 % kleiner, während sie zur Seite gleitet.
+  * Die Bedingung „unterer Fotorand unter dem Bild“ hielt mit `max()` die Größe fest. A glitt nur und blieb dann stehen.
+  * **Lösung:**
+    * Größenspur für A mit Knoten alle 14 Bilder
+    * A 8 px tiefer, Faktor 1,03
+    * weiches Maximum statt `max()`, und die Bedingung nur bis Bild ~140, solange A unten sichtbar ist
+  * **Prüfen:** Zoom aus dem optischen Fluss im Bereich von A, Vorbild gegen Edit, Bild für Bild.

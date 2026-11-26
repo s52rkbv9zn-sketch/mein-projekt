@@ -32,7 +32,7 @@ Wichtige Dateien:
 11. Wenn der Nutzer auf eine Stelle zeigt (Screenshot oder Sekunde), genau diese Stelle ändern und den Rest so lassen. Bei Unklarheit (welche Szene?) Szenen in der Antwort benennen.
 12. **Schrift aus einem Vorbild übernehmen = neu setzen**, nicht aus dem Video ausschneiden. Ausgeschnittene Schrift war dem Nutzer zu ausgefranst. Schriftart bestimmen und jedes Wort an Lage, Größe und Animation anpassen. Vorlage: `projects/beggin/fit_words.py` und `text_layer.py`.
 13. **Freigestellte Personen müssen sauber sein** (Feedback GTA-Edit: „unsauber, schneide alles präzise aus“). KI-Matte nehmen (`projects/gta-hyunjin/matte.py`, RobustVideoMatting über onnxruntime), Hintergrundfarbe am Rand entfernen, keine verwischten Körperverlängerungen und keine fleckigen Farbstufen. Fotos so auf Rollen verteilen, dass Bildränder außerhalb liegen. Nie Körperteile spiegeln oder dazumalen. Wenn die Fotos nicht reichen, um bessere bitten: Oberkörper bis zur Hüfte, Arme im Bild, ruhiger Hintergrund. Vor dem ganzen Video ein Vorschaubild der Ausschnitte schicken.
-14. **Messwerte aus Gesichtserkennung nie roh als Bewegung nehmen** (Feedback: „wackelt viel zu doll“). Immer mit Ausgleichs-Spline glätten (Knoten alle ~9 Bilder, Größe ~24) und die Geschwindigkeitskurve prüfen.
+14. **Messwerte aus Gesichtserkennung nie roh als Bewegung nehmen** (Feedback: „wackelt viel zu doll“). Immer mit Ausgleichs-Spline glätten (Knoten alle ~9 Bilder, Größe ~24) und die Geschwindigkeitskurve prüfen. Zoom/Größenänderung des Vorbilds nie durch Randbedingungen (z. B. `max()`) festhalten, sonst „hängt“ das Bild (Feedback GTA-Anfang); Zoom per optischem Fluss gegen das Vorbild prüfen.
 
 ## Ablauf, der sich bewährt hat
 
