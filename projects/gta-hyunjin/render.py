@@ -329,17 +329,18 @@ def main():
             sheet = np.vstack([np.hstack(tiles[i:i + cols]) for i in range(0, len(tiles), cols)])
             cv2.imwrite(os.environ["SHEET"], sheet, [cv2.IMWRITE_JPEG_QUALITY, 88])
         return
-    dur = NF / 30.0
+    START = int(os.environ.get("START", "0"))      # erstes Bild: 12 = ohne dunklen Einblend-Start
+    dur = (NF - START) / 30.0
     cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-"]
     if REF:
-        cmd += ["-i", REF, "-map", "0:v", "-map", "1:a", "-af", f"afade=t=out:st={dur - 0.35:.3f}:d=0.35",
+        cmd += ["-ss", f"{START / 30:.4f}", "-i", REF, "-map", "0:v", "-map", "1:a", "-af", f"afade=t=out:st={dur - 0.35:.3f}:d=0.35",
                 "-c:a", "aac", "-b:a", "192k"]
     cmd += ["-t", f"{dur:.3f}", "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p",
             "-movflags", "+faststart", OUT]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    n_out = int(round(NF * FPS / 30))
+    n_out = int(round((NF - START) * FPS / 30))
     for n in range(n_out):
-        t = n * 30.0 / FPS
+        t = START + n * 30.0 / FPS
         p.stdin.write(sc.frame(t).tobytes())
         if n % FPS == 0:
             print("Bild", n, "/", n_out, flush=True)
