@@ -55,6 +55,11 @@ PUR_C = np.array([49.5, 12.5, 34.2], np.float32)
 ROLE_ASSET = dict(A1="P1", B1="P5", C1="P4", D1="P3", E1="P2", A3="P1", BP="P5", CP="P4", RP="P2")
 ROLE_MIRROR = {"E1"}          # P2 gespiegelt: dann liegt sein abgeschnittener Arm ausserhalb (links unten)
 PANEL_ROLES = {"BP", "CP", "RP"}
+# A am Anfang: Groesse soll wie im Vorbild deutlich abnehmen (Kamera faehrt zurueck, ~12 % in 0,8 s).
+# Dafuer A etwas tiefer setzen, damit der Fotorand trotzdem unter dem Bild bleibt, und die Randbedingung
+# nur so lange, bis A's unterer Teil von C und D verdeckt ist.
+Y_SHIFT = dict(A1=8.0)
+BOTTOM_UNTIL = dict(A1=140.0)
 # In den Kacheln muss das Foto bis unter die Kachel reichen (sonst sieht man die weitergefuehrte Koerperflaeche):
 MIN_H = dict(CP=146.0, BP=150.0, RP=190.0)
 # Feinabgleich je Rolle (calibrate.py): Gesicht im fertigen Bild genau auf die Spur des Vorbilds.
@@ -189,11 +194,16 @@ class Scene:
         x, y, h = tr
         ox, oy, f = ROLE_CORR.get(role, (0.0, 0.0, 1.0))
         f = max(f, MIN_H.get(role, 0.0) / h)
-        x, y, h = x - ox * h * f, y - oy * h * f, h * f
+        x, y, h = x - ox * h * f, y - oy * h * f + Y_SHIFT.get(role, 0.0), h * f
         if role not in PANEL_ROLES:
-            # unterer Fotorand muss unter dem Bildrand liegen (sonst sieht man, wo das Foto aufhoert)
+            # unterer Fotorand muss unter dem Bildrand liegen (sonst sieht man, wo das Foto aufhoert).
+            # Weiches Maximum statt max(): sonst knickt die Groessenkurve und die Figur "haengt".
             kb = self.fig.bottom_extent(ROLE_ASSET[role])
-            h = max(h, (584.0 - y) / kb)
+            need = (584.0 - y) / kb
+            hc = 0.5 * (h + need + np.sqrt((h - need) ** 2 + 36.0))
+            until = BOTTOM_UNTIL.get(role)
+            wgt = 1.0 if until is None else float(np.clip((until + 12 - t) / 24.0, 0, 1))
+            h = h + (hc - h) * wgt
         return x, y, h
 
     def person(self, role, t, out, clip=None):

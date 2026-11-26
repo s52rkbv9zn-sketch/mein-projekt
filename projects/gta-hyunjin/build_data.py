@@ -103,7 +103,7 @@ def main():
     a1 = follow(d, 6, (124, 107, 222), 204)
     v0 = (np.array(a1[9]) - np.array(a1[6])) / 3
     R["A1"] = role(a1, pre=lambda t: list(np.array(a1[6]) + v0 * (t - 6) * np.array([1, 1, 0])),
-                   post=lambda t, last: last, t0=0, t1=232)
+                   post=lambda t, last: last, t0=0, t1=232, kh=14)       # Groesse folgt dem Zurueckfahren am Anfang
     b1 = follow(d, 63, (948, 108, 208), 108)
     R["B1"] = role(b1, pre=lambda t: [948 + 14 * (63 - t) + 0.47 * (63 - t) ** 2, 108, 205],
                    post=lambda t, last: [last[0] + 1.5 * (t - 108) + 0.6 * max(0, t - 125) ** 2, last[1] + 0.8 * (t - 108), last[2]],
