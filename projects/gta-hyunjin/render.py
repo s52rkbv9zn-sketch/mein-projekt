@@ -29,6 +29,26 @@ KX = W / 1024.0                       # Vorbild-Pixel -> Ausgabe-Pixel
 SK = W / 1920.0                       # Bild-Pixel der Hintergruende (fuer 1920 gemalt) -> Ausgabe
 D = json.load(open(os.path.join(HERE, "ref_data.json")))
 NF = D["nf"]
+FPS = int(os.environ.get("FPS", "60"))     # 60: Zwischenbilder aus den glatten Kurven (keine erfundenen Videobilder)
+
+
+def at(table, t):
+    """Wert einer Bild-Tabelle zur Zeit t (auch halbe Bilder): linear zwischen den Nachbarbildern"""
+    i0 = int(np.floor(t + 1e-9))
+    f = t - i0
+    v0 = table.get(str(i0))
+    if f < 1e-6:
+        return v0
+    v1 = table.get(str(i0 + 1))
+    if v0 is None:
+        return v1 if f >= 0.5 else None
+    if v1 is None:
+        return v0
+    if isinstance(v0, dict):
+        return {k: v0[k] * (1 - f) + v1[k] * f for k in v0}
+    if isinstance(v0, list):
+        return [a * (1 - f) + b * f for a, b in zip(v0, v1)]
+    return v0 * (1 - f) + v1 * f
 PUR_C = np.array([49.5, 12.5, 34.2], np.float32)
 # Fotos v3 (vom Nutzer nachgeliefert, bessere Bilder): P1 Sport-Top, P2 Weste, P3 blond/weisse Jacke,
 # P4 Buehne "IT TAPE" (ganzer Oberkoerper), P5 Sonnenbrille. So verteilt, dass kein Fotorand im Bild liegt.
@@ -146,7 +166,7 @@ class Scene:
 
     # ---------------------------------------------------------- Teile
     def card(self, t, out):
-        c = D["card"][str(t)]
+        c = at(D["card"], t)
         m, b, k, xc = c["m"], c["b"], c["k"], c["xc"]
         th = np.arctan(m)
         cs, sn = np.cos(th), np.sin(th)
@@ -163,7 +183,7 @@ class Scene:
         over(out, rgb, a)
 
     def track(self, role, t):
-        tr = D["roles"][role].get(str(t))
+        tr = at(D["roles"][role], t)
         if tr is None:
             return None
         x, y, h = tr
@@ -187,7 +207,7 @@ class Scene:
         over(out, rgb, a)
 
     def vi_window(self, t):
-        w = D["win"].get(str(t))
+        w = at(D["win"], t)
         if w is None:
             return None
         can = np.zeros((H, W), np.uint8)
@@ -196,7 +216,7 @@ class Scene:
         return can.astype(np.float32) / 255.0
 
     def logo_layer(self, t, out):
-        L = D["logo"].get(str(t))
+        L = at(D["logo"], t)
         if L is None or L["a"] <= 0:
             return
         sc = L["s"] * SK
@@ -210,7 +230,7 @@ class Scene:
         over(out, rgb * L["a"], a * L["a"])
 
     def wedge_layer(self, t, out):
-        b = D["wedge"].get(str(t))
+        b = at(D["wedge"], t)
         if b is None or b >= 590:
             return
         sl = D["wedge_slope"]
@@ -222,7 +242,7 @@ class Scene:
         out += self.wedge * a[..., None]
 
     def panel(self, key, role, t, out):
-        e = D["panel_edges"][key].get(str(t))
+        e = at(D["panel_edges"][key], t)
         if e is None:
             return
         x0, x1 = D["panels"][key]
@@ -257,7 +277,7 @@ class Scene:
     # ---------------------------------------------------------- ein Bild
     def frame(self, t):
         out = self.bg.copy()
-        if t <= 232:
+        if t < 233:
             self.card(t, out)
             for r in ORDER12:
                 self.person(r, t, out)
@@ -272,10 +292,10 @@ class Scene:
             self.panel("C", "CP", t, out)
             self.panel("R", "RP", t, out)
             self.logo_layer(t, out)
-        f = D["fade"][str(t)]
+        f = at(D["fade"], t)
         if f < 1:
             out[:] = self.bg * (1 - f) + out * f
-        rng = np.random.default_rng(t)
+        rng = np.random.default_rng(int(round(t * 2)))
         out += rng.normal(0, 1.2, (H, W, 1)).astype(np.float32)
         return np.clip(out + 0.5, 0, 255).astype(np.uint8)
 
@@ -300,17 +320,19 @@ def main():
             cv2.imwrite(os.environ["SHEET"], sheet, [cv2.IMWRITE_JPEG_QUALITY, 88])
         return
     dur = NF / 30.0
-    cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", "30", "-i", "-"]
+    cmd = ["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-"]
     if REF:
         cmd += ["-i", REF, "-map", "0:v", "-map", "1:a", "-af", f"afade=t=out:st={dur - 0.35:.3f}:d=0.35",
                 "-c:a", "aac", "-b:a", "192k"]
     cmd += ["-t", f"{dur:.3f}", "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p",
             "-movflags", "+faststart", OUT]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
-    for t in range(NF):
+    n_out = int(round(NF * FPS / 30))
+    for n in range(n_out):
+        t = n * 30.0 / FPS
         p.stdin.write(sc.frame(t).tobytes())
-        if t % 30 == 0:
-            print("Bild", t, "/", NF, flush=True)
+        if n % FPS == 0:
+            print("Bild", n, "/", n_out, flush=True)
     p.stdin.close()
     p.wait()
     print("fertig:", OUT)

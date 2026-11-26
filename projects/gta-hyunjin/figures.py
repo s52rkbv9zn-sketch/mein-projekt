@@ -106,6 +106,76 @@ def paint(img, s):
     return cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
 
 
+# ---------------------------------------------------------------- GTA-Malstil (v4, Wunsch "mehr gezeichnet wie bei GTA")
+REF_SKIN = np.array([174.3, 154.1, 158.5], np.float32)      # Hautfarbe der Figuren im Vorbild (Lab, OpenCV-Skala)
+
+
+def soft_posterize(L, n=5, k=9.0, mix=0.55):
+    """weiche Tonstufen (flaechige Schatten wie gemalt), ohne harte Stufenkanten"""
+    v = L * n
+    f = np.floor(v)
+    q = (f + 1 / (1 + np.exp(-k * (v - f - 0.5)))) / n
+    return L * (1 - mix) + q * mix
+
+
+def xdog(g, s, sigma=0.9, kk=1.6, tau=0.985, eps=-0.003, phi=90):
+    g1 = cv2.GaussianBlur(g, (0, 0), sigma * s)
+    g2 = cv2.GaussianBlur(g, (0, 0), sigma * kk * s)
+    d = g1 - tau * g2
+    return np.where(d < eps, 1 + np.tanh(phi * (d - eps)), 1.0)
+
+
+def brush_texture(h, w, s, seed=7):
+    rng = np.random.default_rng(seed)
+    n = cv2.resize(rng.normal(0, 1, (h // 4 + 1, w // 4 + 1)).astype(np.float32), (w, h), interpolation=cv2.INTER_CUBIC)
+    k = np.zeros((int(9 * s) | 1, int(9 * s) | 1), np.float32)
+    cv2.line(k, (0, k.shape[0] - 1), (k.shape[1] - 1, 0), 1.0, 1)
+    n = cv2.filter2D(n, -1, k / k.sum())
+    return n / (n.std() + 1e-6)
+
+
+def skin_to_ref(img, alpha):
+    """Hautton auf den warmen Pfirsichton des Vorbilds schieben (nur Hautpixel, weich gewichtet)"""
+    ycc = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb).astype(np.float32)
+    cr, cb, y = ycc[..., 1], ycc[..., 2], ycc[..., 0]
+    w = (np.clip((cr - 132) / 8, 0, 1) * np.clip((182 - cr) / 8, 0, 1) * np.clip((cb - 82) / 8, 0, 1)
+         * np.clip((138 - cb) / 8, 0, 1) * np.clip((y - 55) / 20, 0, 1))
+    w = cv2.GaussianBlur(w, (0, 0), 3) * (alpha > 0.5)
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+    sel = w > 0.5
+    if sel.sum() < 100:
+        return img
+    d = (REF_SKIN - lab[sel].mean(0)) * np.array([0.5, 1.0, 1.0], np.float32)
+    return cv2.cvtColor(np.clip(lab + w[..., None] * d, 0, 255).astype(np.uint8), cv2.COLOR_LAB2BGR)
+
+
+def gta_paint(img, alpha, s, line_k=0.75, mix=0.55, sat=1.15, tex=0.02):
+    """gezeichneter GTA-Look: Hautton wie im Vorbild, gemalte Flaechen, weiche Tonstufen, Tuschelinien,
+    leichte Pinselstruktur, warme Lichter / lila Schatten"""
+    img = skin_to_ref(img, alpha)
+    base = cv2.bilateralFilter(img, int(7 * s) | 1, 40, 5 * s)
+    base = cv2.bilateralFilter(base, int(7 * s) | 1, 30, 5 * s)
+    base = cv2.edgePreservingFilter(base, flags=cv2.RECURS_FILTER, sigma_s=32 * s, sigma_r=0.2)
+    lab = cv2.cvtColor(base, cv2.COLOR_BGR2LAB).astype(np.float32)
+    L = np.clip((lab[..., 0] / 255.0 - 0.55) * 1.12 + 0.55, 0, 1)
+    Lc = soft_posterize(L, n=5, k=9.0, mix=mix)
+    Lc = np.clip(Lc + 0.35 * (Lc - cv2.GaussianBlur(Lc, (0, 0), 12 * s)), 0, 1)
+    lab[..., 0] = Lc * 255
+    lab[..., 1] = 128 + (lab[..., 1] - 128) * sat
+    lab[..., 2] = 128 + (lab[..., 2] - 128) * sat
+    out = cv2.cvtColor(np.clip(lab, 0, 255).astype(np.uint8), cv2.COLOR_LAB2BGR).astype(np.float32) / 255.0
+    g = cv2.cvtColor(base, cv2.COLOR_BGR2GRAY).astype(np.float32) / 255.0
+    lines = cv2.GaussianBlur(xdog(g, s), (0, 0), 0.5 * s)
+    out = out * ((1 - line_k) + line_k * lines[..., None])
+    y = cv2.cvtColor(np.clip(out, 0, 1), cv2.COLOR_BGR2GRAY)[..., None]
+    out = out + (1 - y) ** 2 * np.array([0.04, -0.02, 0.03], np.float32) + y ** 2 * np.array([-0.04, 0.0, 0.04], np.float32)
+    if tex > 0:
+        out = out * (1 + tex * brush_texture(out.shape[0], out.shape[1], s)[..., None])
+    out = np.clip(out, 0, 1)
+    out = out * out * (3 - 2 * out) * 0.3 + out * 0.7
+    return (np.clip(out, 0, 1) * 255).astype(np.uint8)
+
+
 def outline(col, a, s):
     solid = (cv2.GaussianBlur(a, (0, 0), 1.2 * s) > 0.5).astype(np.uint8)
     r = max(1, int(round(1.6 * s)))
@@ -162,6 +232,7 @@ def make_figure(key, photo, rvm_alpha, rvm_fgr, old_mask, face):
     else:
         t = np.clip((ab - 0.28) / 0.44, 0, 1)
         ab = t * t * (3 - 2 * t)
-    col2 = paint(big, s)
+    import os
+    col2 = paint(big, s) if os.environ.get("STYLE") == "foto" else gta_paint(big, ab, s)
     col3, a3 = outline(col2, ab, s)
     return np.dstack([col3, (a3 * 255).clip(0, 255).astype(np.uint8)]), (fx, fy, fh)
