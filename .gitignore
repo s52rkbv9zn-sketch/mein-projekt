@@ -1,0 +1,15 @@
+# Videos / Bilder werden nicht eingecheckt (Größe, Rechte)
+media/
+out/
+*.mp4
+*.mov
+*.m4v
+*.wav
+*.png
+*.jpg
+__pycache__/
+*.pyc
+
+# grosse Zwischenergebnisse (Text-Masken usw.) - werden per Skript neu berechnet
+*.npy
+masks/

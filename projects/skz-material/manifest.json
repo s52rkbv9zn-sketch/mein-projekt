@@ -1,0 +1,416 @@
+{
+ "_info": "Stray-Kids-Material des Nutzers. Mitglied laut Nutzer (nicht per Gesichtserkennung bestimmt). Zeiten in Sekunden der Bildschirmaufnahme. Videobereich je Szene bei Bedarf mit cropdetect/face_track bestimmen.",
+ "files": {
+  "bangchan_01.mov": {
+   "md5": "1c73468feba78d7fd057727c7cb1e492",
+   "length": 12.87,
+   "member": "Bang Chan",
+   "upload": "ScreenRecording_11-16-2026_12-55-56_1.mov",
+   "scenes": [
+    {
+     "id": "1a",
+     "from": 0.0,
+     "to": 2.5,
+     "what": "schwarzes Shirt, Mikro, Stadion",
+     "ok": true
+    },
+    {
+     "id": "1b",
+     "from": 2.5,
+     "to": 4.9,
+     "what": "gestreiftes Hemd, blaue Sitze",
+     "ok": true
+    },
+    {
+     "id": "1c",
+     "from": 8.6,
+     "to": 12.87,
+     "what": "Lederjacke, Ziegelwand, lacht",
+     "ok": true
+    },
+    {
+     "id": "1c-",
+     "from": 5.4,
+     "to": 6.3,
+     "what": "Lederjacke (YouTube-Leiste '+10' im Bild)",
+     "ok": false
+    },
+    {
+     "id": "1d",
+     "from": 6.3,
+     "to": 7.77,
+     "what": "hellblaues Hemd, unscharf, YouTube-Leiste",
+     "ok": false
+    }
+   ]
+  },
+  "in_01.mov": {
+   "md5": "2d621ecf99a0abff86ee93ac6dec6245",
+   "length": 2.53,
+   "member": "I.N",
+   "upload": "ScreenRecording_11-16-2026_12-52-17_1.mov",
+   "scenes": [
+    {
+     "id": "2",
+     "from": 0.0,
+     "to": 2.3,
+     "what": "graue Straehnen, lehnt am Tisch ('TALKER'-Logo unten rechts wegschneiden)",
+     "ok": true
+    }
+   ]
+  },
+  "changbin_01.mov": {
+   "md5": "3a651a4deaeb045180132495ccb3e078",
+   "length": 12.1,
+   "member": "Changbin",
+   "upload": "ScreenRecording_11-16-2026_12-43-40_1.mov",
+   "scenes": [
+    {
+     "id": "3a",
+     "from": 0.0,
+     "to": 2.33,
+     "what": "schwarze Weste, Kette, Hand an der Wange",
+     "ok": true
+    },
+    {
+     "id": "3b",
+     "from": 2.33,
+     "to": 5.33,
+     "what": "lila Hintergrund ('aurora'-Wasserzeichen links wegschneiden)",
+     "ok": true
+    },
+    {
+     "id": "3c",
+     "from": 5.33,
+     "to": 8.27,
+     "what": "Hoodie an roten Spinden",
+     "ok": true
+    },
+    {
+     "id": "3d",
+     "from": 8.27,
+     "to": 10.8,
+     "what": "tanzt, seitlich aufgenommen -> 90 Grad im Uhrzeigersinn drehen",
+     "ok": true
+    },
+    {
+     "id": "3e",
+     "from": 10.8,
+     "to": 11.3,
+     "what": "Anzug, 'BEHIND CUT', kleines Player-Fenster",
+     "ok": false
+    }
+   ],
+   "end_junk": [
+    11.3,
+    12.1
+   ]
+  },
+  "seungmin_01.mov": {
+   "md5": "9c5c880662e9290dfea3e1e5333bfa9c",
+   "length": 12.27,
+   "member": "Seungmin",
+   "upload": "ScreenRecording_11-16-2026_01-53-51_1.mov",
+   "scenes": [
+    {
+     "id": "4a",
+     "from": 0.0,
+     "to": 5.63,
+     "what": "Buehne, Arme hoch, lacht (Lichtflackern)",
+     "ok": true
+    },
+    {
+     "id": "4b",
+     "from": 5.63,
+     "to": 8.07,
+     "what": "braune Haare, weisses Studio, lacht (kleiner Text oben links wegschneiden)",
+     "ok": true
+    },
+    {
+     "id": "4c",
+     "from": 8.07,
+     "to": 8.95,
+     "what": "GRUPPE 'Little House' (alle zusammen), ab ~9,0 s YouTube-Leiste",
+     "ok": true,
+     "member": "Gruppe"
+    },
+    {
+     "id": "4d",
+     "from": 9.6,
+     "to": 10.37,
+     "what": "tanzt im Flur, Untertitel unten",
+     "ok": false
+    },
+    {
+     "id": "4e",
+     "from": 10.37,
+     "to": 11.07,
+     "what": "Hanbok, sitzt, grosser Untertitel",
+     "ok": false
+    },
+    {
+     "id": "4f",
+     "from": 11.07,
+     "to": 12.27,
+     "what": "weisses Outfit mit Muetze, kleines Player-Fenster",
+     "ok": false
+    }
+   ]
+  },
+  "hyunjin_01.mov": {
+   "md5": "e77554dfa76b6bb9b8d0c53e73f01292",
+   "length": 7.07,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-16-2026_01-50-47_1.mp4",
+   "scenes": [
+    {
+     "id": "5a",
+     "from": 0.0,
+     "to": 5.53,
+     "what": "Spiegel-Selfie, Haare werden gemacht",
+     "ok": true
+    },
+    {
+     "id": "5b",
+     "from": 5.53,
+     "to": 6.3,
+     "what": "graues Hemd vor der Wand, Untertitel",
+     "ok": false
+    }
+   ],
+   "end_junk": [
+    6.3,
+    7.07
+   ]
+  },
+  "leeknow_01.mov": {
+   "md5": "873aae508f11ced13f7a2d2f00e30d0d",
+   "length": 11.95,
+   "member": "Lee Know",
+   "upload": "ScreenRecording_11-16-2026_12-48-36_1.mov",
+   "scenes": [
+    {
+     "id": "6a",
+     "from": 0.0,
+     "to": 1.9,
+     "what": "blonde Haare, winkt, Mikro (seitlich aufgenommen)",
+     "rotate": "cw",
+     "ok": true
+    },
+    {
+     "id": "6b",
+     "from": 1.9,
+     "to": 5.03,
+     "what": "grauer Anzug, Pflanzen (fremde Hand unten links, senkrechter Text am Rand)",
+     "rotate": "cw",
+     "ok": true
+    },
+    {
+     "id": "6c",
+     "from": 5.03,
+     "to": 10.4,
+     "what": "grauer Anzug, warmes Licht ('ELLE'-Logo oben rechts, Untertitel 'Heat. Heat.' ab ~6,5 s wegschneiden)",
+     "rotate": "cw",
+     "ok": true
+    },
+    {
+     "id": "6d",
+     "from": 10.4,
+     "to": 11.95,
+     "what": "tuerkise Haare, graues Shirt, SKZOO-Pluesch ('TALKER'-Logo unten rechts)",
+     "ok": true
+    }
+   ]
+  },
+  "han_01.mov": {
+   "md5": "ccb7ebf1bce3a94c07bf0ee37866e019",
+   "length": 12.77,
+   "member": "Han",
+   "upload": "ScreenRecording_11-16-2026_13-04-16_1.mov",
+   "scenes": [
+    {
+     "id": "7a",
+     "from": 0.0,
+     "to": 0.4,
+     "what": "andere Szene mit grossem Untertitel",
+     "ok": false
+    },
+    {
+     "id": "7b",
+     "from": 0.4,
+     "to": 12.77,
+     "what": "Restaurant, schwarzes Shirt, lacht viel (Untertitel unten und 'RACHA log'-Logo oben rechts wegschneiden)",
+     "ok": true
+    }
+   ]
+  },
+  "gruppe_buehne_01.mov": {
+   "md5": "7ec84add1f65dfda6b4b7d23384a4a4a",
+   "length": 12.38,
+   "member": "Gruppe",
+   "upload": "ScreenRecording_11-16-2026_01-43-09_1.mov",
+   "scenes": [
+    {
+     "id": "8",
+     "from": 0.0,
+     "to": 12.38,
+     "what": "alle 8 auf der Buehne, Fancam (Videobereich crop 1770x1046 bei x=556), 30 fps",
+     "ok": true
+    }
+   ]
+  },
+  "inspo_stays_skip.mov": {
+   "md5": "b34e1865b6176d2460325754af4e486b",
+   "length": 12.13,
+   "member": "Inspo",
+   "upload": "v26044gc0000dbtf9evog65kdqq1md90.mov",
+   "scenes": [
+    {
+     "id": "inspo",
+     "from": 0.0,
+     "to": 12.13,
+     "what": "eigenes, schon gepostetes Video des Nutzers ('Stays will skip, but real Stays...' / Like for Felix / Follow for Hyunjin); Sound 92,4 BPM",
+     "ok": false
+    }
+   ]
+  },
+  "hyunjin_02.mov": {
+   "md5": "e77ca71463d25f1928b26ddc95f2ebec",
+   "length": 9.04,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-01-31_1.mov (9,0 s)",
+   "scenes": [
+    {
+     "id": "H2a",
+     "from": 0.0,
+     "to": 8.54,
+     "ok": true,
+     "what": "Vlog, schwarze Weste, Blick zur Seite (Untertitel unten + 'TALKER'-Logo unten rechts wegschneiden), 30 fps"
+    }
+   ]
+  },
+  "hyunjin_03.mov": {
+   "md5": "394e996a01f17a62c259eba5ef7a4a1c",
+   "length": 10.39,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-01-31_1.mov (10,4 s)",
+   "scenes": [
+    {
+     "id": "H3a",
+     "from": 0.0,
+     "to": 6.08,
+     "ok": true,
+     "what": "Buehne (MBC), rot-schwarze Haare, Blick in die Kamera (Logos oben links/rechts), 30 fps"
+    },
+    {
+     "id": "H3b",
+     "from": 6.08,
+     "to": 10.37,
+     "ok": true,
+     "what": "Buehne, schwarzer Handschuh, 'Psst'-Geste, 30 fps"
+    }
+   ]
+  },
+  "hyunjin_04.mov": {
+   "md5": "052af045263e29bb7123b2daf7f6a241",
+   "length": 12.87,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-17-2026_12-00-10_1.mov",
+   "scenes": [
+    {
+     "id": "H4a",
+     "from": 0.0,
+     "to": 3.9,
+     "ok": true,
+     "what": "Kapuze + Versace-Kappe (Logo oben rechts, Untertitel unten)"
+    },
+    {
+     "id": "H4b",
+     "from": 3.9,
+     "to": 7.06,
+     "ok": true,
+     "what": "Kapuze, Haende am Gesicht (Logo oben rechts, Person klein im Hintergrund)"
+    },
+    {
+     "id": "H4c",
+     "from": 7.06,
+     "to": 8.5,
+     "ok": true,
+     "what": "gruene Strickweste, Kaktus, Kusshand (Untertitel unten)"
+    },
+    {
+     "id": "H4d",
+     "from": 8.5,
+     "to": 10.37,
+     "ok": true,
+     "what": "gruene Weste, posiert mit Pluesch-Stulpen"
+    },
+    {
+     "id": "H4e",
+     "from": 10.37,
+     "to": 11.55,
+     "ok": true,
+     "what": "gruene Weste, Kamera im Vordergrund"
+    },
+    {
+     "id": "H4f",
+     "from": 11.55,
+     "to": 12.86,
+     "ok": true,
+     "what": "graue Kapuzenjacke, sitzt, Leute im Hintergrund"
+    }
+   ]
+  },
+  "hyunjin_05.mov": {
+   "md5": "0f522b90b25044beea898df56f5965e3",
+   "length": 11.67,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-14-2026_01-04-29_1.mov",
+   "scenes": [
+    {
+     "id": "H5a",
+     "from": 0.0,
+     "to": 4.03,
+     "ok": true,
+     "what": "Studio, Brille, schwarzer Anzug (Textkasten rechts, Glitzer-Sticker am Kopf, Untertitel unten)"
+    },
+    {
+     "id": "H5b",
+     "from": 4.03,
+     "to": 10.18,
+     "ok": true,
+     "what": "gestreiftes Shirt, Herz-Haende (Untertitel unten links, 'TALKER'-Logo, fremde Hand)"
+    },
+    {
+     "id": "H5c",
+     "from": 10.18,
+     "to": 11.66,
+     "ok": true,
+     "what": "Fotoshooting, grauer Pullover, Wappen (heller Rahmen + kleiner Text oben links)"
+    }
+   ]
+  },
+  "hyunjin_06.mov": {
+   "md5": "d1c193880911d4b0dac2c3a3ece3b52b",
+   "length": 11.99,
+   "member": "Hyunjin",
+   "upload": "ScreenRecording_11-11-2026_17-01-53_1.mov",
+   "scenes": [
+    {
+     "id": "H6a",
+     "from": 0.0,
+     "to": 10.2,
+     "ok": true,
+     "what": "Konzert-Fancam, schwarzes Tanktop, 60 fps (Untertitel 'Ace.' unten; ab ~5 s weitere Person im Bild)"
+    },
+    {
+     "id": "H6b",
+     "from": 10.2,
+     "to": 11.96,
+     "ok": true,
+     "what": "Konzert, singt mit Mikro, 60 fps (Untertitel unten)"
+    }
+   ]
+  }
+ }
+}
